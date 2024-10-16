@@ -6,7 +6,7 @@ import 'pet_profile_screen.dart';
 import 'pet_notes_screen.dart';
 import 'add_pet_screen.dart';
 
-enum PetView { list, profile, notes } // Tambahkan enum untuk tracking tampilan
+enum PetView { list, profile, notes }
 
 class PetPage extends StatefulWidget {
   const PetPage({super.key});
@@ -16,24 +16,24 @@ class PetPage extends StatefulWidget {
 }
 
 class _PetPageState extends State<PetPage> {
-  int currentIndex = 1; // Set the initial index for the bottom nav
-  PetView currentView = PetView.list; // Tampilan default adalah list
-  Pet? selectedPet; // Simpan pet yang dipilih untuk profile/notes
+  int currentIndex = 1;
+  PetView currentView = PetView.list;
+  Pet? selectedPet;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4), // Background color
+      backgroundColor: const Color(0xFFF4F4F4),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(95.0),
-        child: const CustomHeader(title: 'Pet Notes'), // Gunakan CustomHeader
+        child: const CustomHeader(title: 'Pet Notes'),
       ),
-      body: _buildBody(), // Ganti dengan widget dinamis
+      body: _buildBody(),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: currentIndex,
         onTap: (index) {
           setState(() {
-            currentIndex = index; // Update the current index
+            currentIndex = index;
           });
         },
       ),
@@ -43,23 +43,64 @@ class _PetPageState extends State<PetPage> {
   Widget _buildBody() {
     switch (currentView) {
       case PetView.profile:
-        return PetProfileScreen(pet: selectedPet!); // Tampilkan profile
+        return PetProfileScreen(pet: selectedPet!);
       case PetView.notes:
-        return PetNotesScreen(pet: selectedPet!); // Tampilkan notes
+        return PetNotesScreen(pet: selectedPet!);
       case PetView.list:
       default:
-        return _buildPetListView(); // Tampilkan list default
+        return _buildPetListView();
     }
   }
 
   Widget _buildPetListView() {
+    if (pets.isEmpty) {
+      return _buildEmptyPetScreen(); // Show empty state if no pets
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildHeader(context),
         const SizedBox(height: 15),
-        Expanded(child: _buildPetList(context)), // Pet list
+        Expanded(child: _buildPetList(context)),
       ],
+    );
+  }
+
+  Widget _buildEmptyPetScreen() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'No pet data available',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Please add a pet first.',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              // Navigate to AddPetScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddPetScreen()),
+              ).then((result) {
+                if (result != null && result is Pet) {
+                  // Add the new pet to your pets list here
+                  setState(() {
+                    pets.add(result); // Assuming 'pets' is your list of Pet
+                  });
+                }
+              });
+            },
+            child: const Text('Add Pet'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -96,15 +137,11 @@ class _PetPageState extends State<PetPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        AddPetScreen(), // Navigate to AddPetScreen
-                  ),
+                  MaterialPageRoute(builder: (context) => AddPetScreen()),
                 ).then((result) {
                   if (result != null && result is Pet) {
-                    // Add the new pet to your pets list here
                     setState(() {
-                      pets.add(result); // Assuming 'pets' is your list of Pet
+                      pets.add(result);
                     });
                   }
                 });

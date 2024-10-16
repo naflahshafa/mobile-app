@@ -11,21 +11,19 @@ class WelcomePage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon
             Container(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(5.0),
               decoration: BoxDecoration(
                 color: Colors.blue,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(
-                Icons
-                    .pets, // You can change this to a custom icon or image if needed
-                size: 64,
-                color: Colors.white,
+              child: Image.asset(
+                'assets/logo_app.png',
+                width: 150,
+                height: 150,
               ),
             ),
-            const SizedBox(height: 24), // Space between icon and text
+            const SizedBox(height: 150),
             // Welcome Message
             const Text(
               'Welcome to Pet Notes!',
@@ -34,8 +32,7 @@ class WelcomePage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(
-                height: 16), // Space between welcome message and description
+            const SizedBox(height: 15),
             // Description
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 32.0),
@@ -48,42 +45,60 @@ class WelcomePage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 32), // Space before buttons
+            const SizedBox(height: 20),
             // Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/register');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    // primary: Colors.blue, // Background color
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                  child: const Text('Sign up'),
+                _buildGradientButton(
+                  context: context,
+                  text: 'Sign up',
+                  route: '/register',
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/login');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    // primary: Colors.blue, // Background color
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                  ),
-                  child: const Text('Sign in'),
+                _buildGradientButton(
+                  context: context,
+                  text: 'Sign in',
+                  route: '/login',
                 ),
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGradientButton({
+    required BuildContext context,
+    required String text,
+    required String route,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blueAccent, Colors.lightBlue],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: ElevatedButton(
+        onPressed: () {
+          Navigator.pushNamed(context, route);
+        },
+        style: ElevatedButton.styleFrom(
+          elevation: 0, // Remove elevation
+          padding: const EdgeInsets.symmetric(
+              horizontal: 40, vertical: 20), // Meningkatkan ukuran tombol
+          backgroundColor:
+              Colors.transparent, // Set to transparent to show gradient
+        ),
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Color(0xFFFFFFFF), // White color for text
+            fontWeight: FontWeight.bold, // Bold text
+          ),
         ),
       ),
     );

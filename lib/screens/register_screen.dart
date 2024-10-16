@@ -68,7 +68,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Register",
+                        "Sign Up",
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -208,7 +208,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     ? Colors.black87
                                     : Colors.grey, // Ubah warna teks tombol
                               ),
-                              child: const Text("Register"),
+                              child: const Text("Sign Up"),
                             );
                           },
                         ),
@@ -225,7 +225,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         Navigator.pushReplacementNamed(context, '/login');
                       },
                       child: const Text(
-                        "Login",
+                        "Sign in",
                         style: TextStyle(color: Colors.blue),
                       ),
                     ),

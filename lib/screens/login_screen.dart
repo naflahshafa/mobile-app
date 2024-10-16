@@ -189,7 +189,7 @@ class _LoginPageState extends State<LoginPage> {
                                   }
                                 }
                               : null,
-                          child: const Text("Login"),
+                          child: const Text("Sign In"),
                         ),
                       ],
                     ),
@@ -205,7 +205,7 @@ class _LoginPageState extends State<LoginPage> {
                         Navigator.pushNamed(context, '/register');
                       },
                       child: const Text(
-                        "Register",
+                        "Sign up",
                         style: TextStyle(color: Colors.blue), // Warna teks biru
                       ),
                     ),

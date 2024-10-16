@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../components/header.dart';
 import '../components/bottom_navbar.dart';
 import '../data/dummy_data.dart';
+import 'add_pet_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,21 +12,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 0; // State untuk menyimpan indeks saat ini
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(95.0),
-        child: const CustomHeader(title: 'Pet Notes'), // Gunakan CustomHeader
+        child: const CustomHeader(title: 'Pet Notes'),
       ),
       body: _buildMainContent(context),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
         onTap: (index) {
           setState(() {
-            _currentIndex = index; // Update indeks saat ini
+            _currentIndex = index;
           });
         },
       ),
@@ -33,6 +34,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildMainContent(BuildContext context) {
+    // Cek jika daftar pet kosong
+    if (pets.isEmpty) {
+      return _buildEmptyPetScreen(context);
+    }
+
     return Container(
       color: const Color(0xFFF4F4F4),
       padding: const EdgeInsets.all(20),
@@ -47,10 +53,49 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildEmptyPetScreen(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'No pet available',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Please add a pet first.',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AddPetScreen()),
+              );
+            },
+            child: Text('Add Pet'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildHeader() {
     String todayDate = '${DateTime.now().day} ${[
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ][DateTime.now().month - 1]} ${DateTime.now().year}';
 
     return Column(
@@ -146,7 +191,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildTaskCard(Task task, BuildContext context) {
-    Color backgroundColor = task.status ? const Color(0xFFB2E0B5) : const Color(0xFFFDD7A9); // Menggunakan boolean untuk status
+    Color backgroundColor = task.status
+        ? const Color(0xFFB2E0B5)
+        : const Color(0xFFFDD7A9); // Menggunakan boolean untuk status
 
     return Container(
       margin: const EdgeInsets.only(top: 8.0),

@@ -17,12 +17,15 @@ class CustomHeader extends StatelessWidget {
         ),
       ),
       child: Center(
-        child: Text(
-          title,
-          style: const TextStyle(
-            fontSize: 25,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 20.0),
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
           ),
         ),
       ),

@@ -26,8 +26,14 @@ class Task {
   final String title;
   final String time;
   final bool status;
+  final String description;
 
-  Task({required this.title, required this.time, required this.status});
+  Task({
+    required this.title,
+    required this.time,
+    required this.status,
+    required this.description,
+  });
 }
 
 class Note {
@@ -47,13 +53,15 @@ final List<Pet> pets = [
     tasks: [
       Task(
         title: "Walk",
-        time: "01-10-2024 08:00 AM",
+        time: "2024-10-01 08:00 AM",
         status: true,
+        description: "Take Mochi for a morning walk around the park.",
       ),
       Task(
         title: "Feed",
-        time: "01-10-2024 09:00 AM",
+        time: "2024-10-02 09:00 AM",
         status: false,
+        description: "Feed Mochi his favorite dog food.",
       ),
     ],
     notes: [
@@ -77,13 +85,15 @@ final List<Pet> pets = [
     tasks: [
       Task(
         title: "Play",
-        time: "01-10-2024 04:00 PM",
+        time: "2024-10-05 04:00 PM",
         status: false,
+        description: "Spend quality playtime with Milo using her favorite toy.",
       ),
       Task(
         title: "Vet Appointment",
-        time: "01-10-2024 10:00 AM",
+        time: "2024-10-06 10:00 AM",
         status: false,
+        description: "Take Milo for her scheduled vet check-up.",
       ),
     ],
     notes: [
@@ -105,7 +115,14 @@ final List<Pet> pets = [
     birthDate: DateTime(2023, 7, 18),
     sex: "Male",
     breed: "Holland Lop",
-    tasks: [],
+    tasks: [
+      Task(
+        title: "Vet Appointment",
+        time: "2024-10-01 10:00 AM",
+        status: false,
+        description: "Take Miko for his scheduled vet check-up.",
+      ),
+    ],
     notes: [
       Note(
         title: "Diet",
