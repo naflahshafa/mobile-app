@@ -1,24 +1,67 @@
 import 'package:flutter/material.dart';
+import '../components/bottom_navbar.dart';
+import '../components/header.dart';
+import '../data/dummy_data.dart';
+import 'pet_profile_screen.dart';
+import 'pet_notes_screen.dart';
 
-class PetPage extends StatelessWidget {
+enum PetView { list, profile, notes } // Tambahkan enum untuk tracking tampilan
+
+class PetPage extends StatefulWidget {
   const PetPage({super.key});
 
   @override
+  _PetPageState createState() => _PetPageState();
+}
+
+class _PetPageState extends State<PetPage> {
+  int currentIndex = 1; // Set the initial index for the bottom nav
+  PetView currentView = PetView.list; // Tampilan default adalah list
+  Pet? selectedPet; // Simpan pet yang dipilih untuk profile/notes
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFF4F4F4), // Mengatur warna latar belakang
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(context), // Memanggil header
-          const SizedBox(height: 15),
-          Expanded(child: _buildPetList(context)), // Memanggil daftar kartu pet
-        ],
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F4F4), // Background color
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(95.0),
+        child: const CustomHeader(title: 'Pet Notes'), // Gunakan CustomHeader
+      ),
+      body: _buildBody(), // Ganti dengan widget dinamis
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: currentIndex,
+        onTap: (index) {
+          setState(() {
+            currentIndex = index; // Update the current index
+          });
+        },
       ),
     );
   }
 
-  // Membuat header
+  Widget _buildBody() {
+    switch (currentView) {
+      case PetView.profile:
+        return PetProfileScreen(pet: selectedPet!); // Tampilkan profile
+      case PetView.notes:
+        return PetNotesScreen(pet: selectedPet!); // Tampilkan notes
+      case PetView.list:
+      default:
+        return _buildPetListView(); // Tampilkan list default
+    }
+  }
+
+  Widget _buildPetListView() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeader(context),
+        const SizedBox(height: 15),
+        Expanded(child: _buildPetList(context)), // Pet list
+      ],
+    );
+  }
+
   Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
@@ -46,20 +89,16 @@ class PetPage extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.all(
-                  Radius.circular(45)), // Pastikan sudut tombol melengkung
+              borderRadius: BorderRadius.all(Radius.circular(45)),
             ),
             child: ElevatedButton(
               onPressed: () {
                 // Tambahkan logika add pet di sini
               },
               style: ElevatedButton.styleFrom(
-                elevation:
-                    0, // Hilangkan bayangan untuk tampilan gradasi yang lebih halus
+                elevation: 0,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                minimumSize:
-                    const Size(100, 15), // Mengatur ukuran minimum tombol
                 backgroundColor: Colors.transparent,
               ),
               child: const Text(
@@ -74,26 +113,6 @@ class PetPage extends StatelessWidget {
   }
 
   Widget _buildPetList(BuildContext context) {
-    // Daftar dummy untuk kartu hewan peliharaan
-    final List<Pet> pets = [
-      Pet(
-        name: "Mochi",
-        type: "Dog",
-        imageUrl: null,
-      ),
-      Pet(
-        name: "Milo",
-        type: "Cat",
-        imageUrl:
-            "https://ik.imagekit.io/ggslopv3t/red-white-cat-i-white-studio-cut.jpg?updatedAt=1728912159893",
-      ),
-      Pet(
-        name: "Miko",
-        type: "Rabbit",
-        imageUrl: null,
-      ),
-    ];
-
     return ListView.builder(
       itemCount: pets.length,
       itemBuilder: (context, index) {
@@ -153,26 +172,13 @@ class PetPage extends StatelessWidget {
                 ),
               ],
             ),
-            // Ikon opsi
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert, color: Color(0xFF333333)),
               onSelected: (String value) {
                 if (value == 'View Pet Profile') {
-                  // Navigasi ke halaman profil hewan peliharaan
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PetProfileScreen(pet: pet),
-                    ),
-                  );
+                  _navigateToProfile(pet);
                 } else if (value == 'View Pet Notes') {
-                  // Navigasi ke halaman catatan hewan peliharaan
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PetNotesScreen(pet: pet),
-                    ),
-                  );
+                  _navigateToNotes(pet);
                 }
               },
               itemBuilder: (BuildContext context) {
@@ -193,65 +199,18 @@ class PetPage extends StatelessWidget {
       ),
     );
   }
-}
 
-class Pet {
-  final String name;
-  final String type;
-  final String? imageUrl;
-
-  Pet({required this.name, required this.type, this.imageUrl});
-}
-
-// Halaman Profil Hewan Peliharaan
-class PetProfileScreen extends StatelessWidget {
-  final Pet pet;
-
-  const PetProfileScreen({super.key, required this.pet});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('${pet.name} Profile')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Profile of ${pet.name}', style: TextStyle(fontSize: 24)),
-            const SizedBox(height: 20),
-            // Tambahkan detail lainnya di sini
-            Card(
-              margin: const EdgeInsets.all(20),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  children: [
-                    Text('Type: ${pet.type}', style: TextStyle(fontSize: 18)),
-                    // Tambahkan informasi lain jika perlu
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void _navigateToProfile(Pet pet) {
+    setState(() {
+      currentView = PetView.profile;
+      selectedPet = pet;
+    });
   }
-}
 
-// Halaman Catatan Hewan Peliharaan
-class PetNotesScreen extends StatelessWidget {
-  final Pet pet;
-
-  const PetNotesScreen({super.key, required this.pet});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Notes for ${pet.name}')),
-      body: Center(
-        child: Text('Notes for ${pet.name}'),
-      ),
-    );
+  void _navigateToNotes(Pet pet) {
+    setState(() {
+      currentView = PetView.notes;
+      selectedPet = pet;
+    });
   }
 }

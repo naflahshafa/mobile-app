@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'main_page.dart'; // Import Pet dan Task model
+import '../components/bottom_navbar.dart';
+import '../components/header.dart';
+import '../data/dummy_data.dart';
 
 class TaskPage extends StatefulWidget {
-  final List<Pet> pets;
-
-  const TaskPage({super.key, required this.pets});
+  const TaskPage({super.key});
 
   @override
   State<TaskPage> createState() => _TaskPageState();
@@ -14,9 +14,10 @@ class TaskPage extends StatefulWidget {
 class _TaskPageState extends State<TaskPage> {
   DateTime _selectedDay = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
+  int currentIndex = 2;
 
   List<Task> _getTasksForSelectedDay() {
-    return widget.pets
+    return pets
         .expand((pet) => pet.tasks)
         .where((task) => task.time.startsWith(
             '${_selectedDay.day.toString().padLeft(2, '0')}-${_selectedDay.month.toString().padLeft(2, '0')}-${_selectedDay.year}'))
@@ -26,8 +27,11 @@ class _TaskPageState extends State<TaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          const Color(0xFFF4F4F4), // Set background color to #f4f4f4
+      backgroundColor: const Color(0xFFF4F4F4),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(95.0),
+        child: const CustomHeader(title: 'Pet Notes'),
+      ),
       body: Column(
         children: [
           TableCalendar(
@@ -55,28 +59,31 @@ class _TaskPageState extends State<TaskPage> {
             child: ListView(
               children: _getTasksForSelectedDay().map((task) {
                 return Card(
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                   child: ListTile(
                     leading: Icon(
                       Icons.task_alt,
-                      color: task.status == TaskStatus.completed
-                          ? Colors.green
-                          : task.status == TaskStatus.missed
-                              ? Colors.red
-                              : Colors.orange,
+                      color: task.status ? Colors.green : Colors.red,
                     ),
                     title: Text(task.title),
                     subtitle: Text(task.time),
-                    trailing: Text(widget.pets
-                        .firstWhere((pet) => pet.tasks.contains(task))
-                        .name),
+                    trailing: Text(
+                      pets.firstWhere((pet) => pet.tasks.contains(task)).name,
+                    ),
                   ),
                 );
               }).toList(),
             ),
           ),
         ],
+      ),
+      bottomNavigationBar: CustomBottomNavBar(
+        currentIndex: currentIndex,
+        onTap: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
       ),
     );
   }

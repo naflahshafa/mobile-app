@@ -185,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: isFieldValid
                               ? () {
                                   if (_loginFormKey.currentState!.validate()) {
-                                    // Handle login action
+                                    Navigator.pushNamed(context, '/home-page');
                                   }
                                 }
                               : null,
