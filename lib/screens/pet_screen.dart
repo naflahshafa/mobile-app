@@ -4,6 +4,7 @@ import '../components/header.dart';
 import '../data/dummy_data.dart';
 import 'pet_profile_screen.dart';
 import 'pet_notes_screen.dart';
+import 'add_pet_screen.dart';
 
 enum PetView { list, profile, notes } // Tambahkan enum untuk tracking tampilan
 
@@ -93,7 +94,20 @@ class _PetPageState extends State<PetPage> {
             ),
             child: ElevatedButton(
               onPressed: () {
-                // Tambahkan logika add pet di sini
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AddPetScreen(), // Navigate to AddPetScreen
+                  ),
+                ).then((result) {
+                  if (result != null && result is Pet) {
+                    // Add the new pet to your pets list here
+                    setState(() {
+                      pets.add(result); // Assuming 'pets' is your list of Pet
+                    });
+                  }
+                });
               },
               style: ElevatedButton.styleFrom(
                 elevation: 0,
