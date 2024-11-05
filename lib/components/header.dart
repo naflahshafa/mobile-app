@@ -9,9 +9,9 @@ class CustomHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 95.0,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blueAccent, Colors.lightBlue],
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Colors.blueAccent, Colors.lightBlue], // Ungu gradient
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -22,9 +22,10 @@ class CustomHeader extends StatelessWidget {
           child: Text(
             title,
             style: const TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.w600,
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
               color: Colors.white,
+              letterSpacing: 1.2,
             ),
           ),
         ),

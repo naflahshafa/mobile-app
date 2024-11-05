@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "758465058899",
+    "project_id": "papb-project-d9e27",
+    "storage_bucket": "papb-project-d9e27.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:758465058899:android:d9ab879ce4dcacf42ccea6",
+        "android_client_info": {
+          "package_name": "com.example.pet_notes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAELsRbIZh6sbWoHUpbwi-ajr77jG-6MUo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
