@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../data/dummy_data.dart';
+import '../../data/dummy_data.dart';
 import 'pet_screen.dart';
 import 'pet_note_detail_screen.dart';
 import 'add_pet_note_screen.dart';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -84,20 +85,20 @@ class WelcomePage extends StatelessWidget {
       ),
       child: ElevatedButton(
         onPressed: () {
-          Navigator.pushNamed(context, route);
+          context.go(route);
         },
         style: ElevatedButton.styleFrom(
-          elevation: 0, // Remove elevation
+          elevation: 0,
           padding: const EdgeInsets.symmetric(
-              horizontal: 40, vertical: 20), // Meningkatkan ukuran tombol
+              horizontal: 40, vertical: 20),
           backgroundColor:
-              Colors.transparent, // Set to transparent to show gradient
+              Colors.transparent,
         ),
         child: Text(
           text,
           style: const TextStyle(
-            color: Color(0xFFFFFFFF), // White color for text
-            fontWeight: FontWeight.bold, // Bold text
+            color: Color(0xFFFFFFFF),
+            fontWeight: FontWeight.bold,
           ),
         ),
       ),

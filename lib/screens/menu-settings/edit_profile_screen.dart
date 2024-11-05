@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../components/bottom_navbar.dart';
-import '../components/header.dart';
+import '../../components/bottom_navbar.dart';
+import '../../components/header.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../components/bottom_navbar.dart';
-import '../components/header.dart';
-import '../data/dummy_data.dart';
+import '../../components/header.dart';
+import '../../data/dummy_data.dart';
 import 'add_pet_task_screen.dart';
 import 'pet_task_detail_screen.dart';
 
@@ -43,7 +42,7 @@ class _TaskPageState extends State<TaskPage> {
       backgroundColor: const Color(0xFFF4F4F4),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(95.0),
-        child: CustomHeader(title: 'Pet Notes'),
+        child: CustomHeader(title: 'Tasks'),
       ),
       body: Column(
         children: [
@@ -343,14 +342,6 @@ class _TaskPageState extends State<TaskPage> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
       ),
     );
   }

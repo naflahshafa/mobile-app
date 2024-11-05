@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../data/dummy_data.dart';
+import '../../data/dummy_data.dart';
 import 'pet_screen.dart';
 import 'edit_pet_profile_screen.dart';
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../components/bottom_navbar.dart';
-import '../components/header.dart';
-import '../data/dummy_data.dart';
+import '../../components/bottom_navbar.dart';
+import '../../components/header.dart';
+import '../../data/dummy_data.dart';
 
 class EditPetProfileScreen extends StatefulWidget {
   final Pet pet;

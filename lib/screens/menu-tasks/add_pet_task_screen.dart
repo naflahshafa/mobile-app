@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../components/bottom_navbar.dart';
-import '../components/header.dart';
-import '../data/dummy_data.dart';
+import '../../components/bottom_navbar.dart';
+import '../../components/header.dart';
+import '../../data/dummy_data.dart';
 
-class EditPetTaskScreen extends StatefulWidget {
-  final Task task;
-  final String petName;
-
-  const EditPetTaskScreen({required this.task, required this.petName, Key? key})
-      : super(key: key);
+class AddPetTaskScreen extends StatefulWidget {
+  const AddPetTaskScreen({super.key});
 
   @override
-  _EditPetTaskScreenState createState() => _EditPetTaskScreenState();
+  _AddPetTaskScreenState createState() => _AddPetTaskScreenState();
 }
 
-class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
+class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
   int currentIndex = 2;
   final _formKey = GlobalKey<FormState>();
   late String selectedPet;
@@ -26,19 +22,15 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
   @override
   void initState() {
     super.initState();
-    selectedPet = widget.petName; // Load the current pet name
-    title = widget.task.title; // Load the current task title
-    description = widget.task.description; // Load the current task description
-
-    // Change the date format to parse from 'dd-MM-yyyy' to 'yyyy-MM-dd'
-    dueDate = DateFormat('yyyy-MM-dd')
-        .parse(widget.task.time); // Load the current due date
+    selectedPet = pets.isNotEmpty ? pets[0].name : '';
+    title = '';
+    description = '';
   }
 
   Future<void> _selectDueDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: dueDate ?? DateTime.now(),
+      initialDate: DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
       builder: (context, child) {
@@ -87,7 +79,7 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      'Edit Pet Task',
+                      'Add Pet Task',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -105,18 +97,17 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
                     _buildTextField(
                       label: 'Title',
                       icon: Icons.title,
-                      initialValue: title,
                       onChanged: (value) => title = value,
-                      placeholder: 'Enter task title',
+                      hintText: 'Enter task title', // Placeholder for title
                     ),
                     const SizedBox(height: 10),
                     _buildTextField(
                       label: 'Description',
                       icon: Icons.description,
-                      initialValue: description,
                       onChanged: (value) => description = value,
                       maxLines: 5,
-                      placeholder: 'Enter task description',
+                      hintText:
+                          'Enter task description', // Placeholder for description
                     ),
                     const SizedBox(height: 20),
                     Row(
@@ -140,8 +131,8 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
                                 {
                                   'pet': selectedPet,
                                   'dueDate': dueDate != null
-                                      ? DateFormat('yyyy-MM-dd').format(
-                                          dueDate!) // Ensuring the format is yyyy-MM-dd
+                                      ? DateFormat('yyyy-MM-dd')
+                                          .format(dueDate!)
                                       : '',
                                   'title': title,
                                   'description': description,
@@ -202,6 +193,7 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
+            hintText: 'Select a pet', // Placeholder for pet selection
           ),
         ),
       ],
@@ -234,8 +226,7 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
             ),
             child: Text(
               date != null
-                  ? DateFormat('yyyy-MM-dd')
-                      .format(date) // Changed to yyyy-MM-dd
+                  ? DateFormat('yyyy-MM-dd').format(date)
                   : 'Select date',
               style: TextStyle(
                 fontSize: 16,
@@ -254,7 +245,7 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
     required Function(String) onChanged,
     String? initialValue,
     int maxLines = 1,
-    required String placeholder, // Added placeholder parameter
+    String? hintText, // Added hintText parameter
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -282,7 +273,7 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
-            hintText: placeholder, // Set the placeholder here
+            hintText: hintText, // Set the hintText here
           ),
           onChanged: onChanged,
           validator: (value) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../components/bottom_navbar.dart';
-import '../components/header.dart';
-import '../data/dummy_data.dart';
+import '../../components/bottom_navbar.dart';
+import '../../components/header.dart';
+import '../../data/dummy_data.dart';
 
 class AddPetNoteScreen extends StatefulWidget {
   const AddPetNoteScreen({super.key});

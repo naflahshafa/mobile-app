@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../components/bottom_navbar.dart';
-import '../components/header.dart';
-import '../data/dummy_data.dart';
+import '../../components/bottom_navbar.dart';
+import '../../components/header.dart';
+import '../../data/dummy_data.dart';
 import 'edit_pet_task_screen.dart';
 
 class PetTaskDetailPage extends StatefulWidget {

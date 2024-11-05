@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import '../components/bottom_navbar.dart';
-import '../components/header.dart';
-import '../data/dummy_data.dart';
+import 'package:go_router/go_router.dart';
+import '../../data/dummy_data.dart';
 import 'pet_profile_screen.dart';
 import 'pet_notes_screen.dart';
-import 'add_pet_screen.dart';
 
 enum PetView { list, profile, notes }
 
@@ -16,27 +14,14 @@ class PetPage extends StatefulWidget {
 }
 
 class _PetPageState extends State<PetPage> {
-  int currentIndex = 1;
   PetView currentView = PetView.list;
   Pet? selectedPet;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(95.0),
-        child: const CustomHeader(title: 'Pet Notes'),
-      ),
+      backgroundColor: const Color(0xFF4B2FB8),
       body: _buildBody(),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-      ),
     );
   }
 
@@ -54,72 +39,61 @@ class _PetPageState extends State<PetPage> {
 
   Widget _buildPetListView() {
     if (pets.isEmpty) {
-      return _buildEmptyPetScreen(); // Show empty state if no pets
+      return _buildEmptyPetScreen();
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildHeader(context),
-        const SizedBox(height: 15),
         Expanded(child: _buildPetList(context)),
       ],
     );
   }
 
   Widget _buildEmptyPetScreen() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'No pet data available',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    return Column(
+      children: [
+        _buildHeader(context),
+        Expanded(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'No pet data available',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Please add a pet first.',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 10),
-          Text(
-            'Please add a pet first.',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Navigate to AddPetScreen
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddPetScreen()),
-              ).then((result) {
-                if (result != null && result is Pet) {
-                  // Add the new pet to your pets list here
-                  setState(() {
-                    pets.add(result); // Assuming 'pets' is your list of Pet
-                  });
-                }
-              });
-            },
-            child: const Text('Add Pet'),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      padding: const EdgeInsets.only(
+          top: 40.0, left: 20.0, right: 20.0, bottom: 16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              const Icon(Icons.pets, size: 30, color: Color(0xFF333333)),
+              const Icon(Icons.pets, size: 35, color: Color(0xFFFFC443)),
               const SizedBox(width: 10),
               const Text(
                 'My Pets',
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF333333),
+                  color: Color(0xFFFFC443),
                 ),
               ),
             ],
@@ -127,7 +101,10 @@ class _PetPageState extends State<PetPage> {
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.blueAccent, Colors.lightBlue],
+                colors: [
+                  Color(0xFF7F51D5),
+                  Color(0xFFFFC443),
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -135,16 +112,7 @@ class _PetPageState extends State<PetPage> {
             ),
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AddPetScreen()),
-                ).then((result) {
-                  if (result != null && result is Pet) {
-                    setState(() {
-                      pets.add(result);
-                    });
-                  }
-                });
+                context.go('/pets/addPet');
               },
               style: ElevatedButton.styleFrom(
                 elevation: 0,
@@ -175,7 +143,7 @@ class _PetPageState extends State<PetPage> {
   Widget _buildPetCard(BuildContext context, Pet pet) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
-      color: const Color(0xFFFFFFFF),
+      color: const Color(0xFFFFC443),
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Row(
@@ -199,7 +167,7 @@ class _PetPageState extends State<PetPage> {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(
-                          color: Colors.grey,
+                          color: Color(0xFF333333),
                           child: const Icon(Icons.error, color: Colors.red),
                         );
                       },
@@ -213,11 +181,14 @@ class _PetPageState extends State<PetPage> {
                     Text(
                       pet.name,
                       style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
+                          color: Color(0xFF333333),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
                     ),
                     Text(
                       pet.type,
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      style: const TextStyle(
+                          color: Color(0xFF333333), fontSize: 12),
                     ),
                   ],
                 ),

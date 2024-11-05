@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -206,7 +207,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                 ),
                                 foregroundColor: isValid
                                     ? Colors.black87
-                                    : Colors.grey, // Ubah warna teks tombol
+                                    : Colors.grey,
                               ),
                               child: const Text("Sign Up"),
                             );
@@ -222,7 +223,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const Text("I have an account? "),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/login');
+                        context.go('/login');
                       },
                       child: const Text(
                         "Sign in",
@@ -255,7 +256,7 @@ class _RegisterPageState extends State<RegisterPage> {
       textInputAction: textInputAction,
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: const TextStyle(color: Colors.blueAccent), // Ubah warna label
+        labelStyle: const TextStyle(color: Colors.blueAccent),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
         ),

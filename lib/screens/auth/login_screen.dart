@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -96,11 +97,11 @@ class _LoginPageState extends State<LoginPage> {
                           decoration: InputDecoration(
                             labelText: "Email",
                             labelStyle: const TextStyle(
-                                color: Colors.blue), // Warna label biru
+                                color: Colors.blue),
                             focusedBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                   color:
-                                      Colors.blue), // Border biru ketika fokus
+                                      Colors.blue),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             border: OutlineInputBorder(
@@ -125,11 +126,11 @@ class _LoginPageState extends State<LoginPage> {
                           decoration: InputDecoration(
                             labelText: "Password",
                             labelStyle: const TextStyle(
-                                color: Colors.blue), // Warna label biru
+                                color: Colors.blue),
                             focusedBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
                                   color:
-                                      Colors.blue), // Border biru ketika fokus
+                                      Colors.blue),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             border: OutlineInputBorder(
@@ -140,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                                 passwordObscure
                                     ? Icons.visibility_off
                                     : Icons.visibility,
-                                color: Colors.blue, // Warna ikon biru
+                                color: Colors.blue,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -167,14 +168,13 @@ class _LoginPageState extends State<LoginPage> {
                             child: const Text(
                               "Forgot Password?",
                               style: TextStyle(
-                                  color: Colors.blue), // Warna teks biru
+                                  color: Colors.blue),
                             ),
                           ),
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            // backgroundColor: Colors.blueAccent, // Warna tombol biru
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
@@ -185,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: isFieldValid
                               ? () {
                                   if (_loginFormKey.currentState!.validate()) {
-                                    Navigator.pushNamed(context, '/home-page');
+                                    context.go('/home');
                                   }
                                 }
                               : null,
@@ -202,11 +202,11 @@ class _LoginPageState extends State<LoginPage> {
                     const Text("Don't have an account?"),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/register');
+                        context.go('/register');
                       },
                       child: const Text(
                         "Sign up",
-                        style: TextStyle(color: Colors.blue), // Warna teks biru
+                        style: TextStyle(color: Colors.blue),
                       ),
                     ),
                   ],

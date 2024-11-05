@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../components/bottom_navbar.dart';
-import '../components/header.dart';
-import '../data/dummy_data.dart'; // Pastikan untuk mengimpor file data yang sesuai
+import '../../components/bottom_navbar.dart';
+import '../../components/header.dart';
+import '../../data/dummy_data.dart'; // Pastikan untuk mengimpor file data yang sesuai
 import 'edit_pet_note_screen.dart'; // Import the EditPetNoteScreen
 
 class NoteDetailPage extends StatefulWidget {

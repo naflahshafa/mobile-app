@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../components/bottom_navbar.dart';
-import '../components/header.dart';
+import '../../components/header.dart';
 import 'edit_profile_screen.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -19,7 +18,7 @@ class _SettingsPageState extends State<SettingsPage> {
       backgroundColor: const Color(0xFFF4F4F4),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(95.0),
-        child: const CustomHeader(title: 'Pet Notes'),
+        child: const CustomHeader(title: 'Settings'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -193,15 +192,6 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-            // Handle navigation based on index
-          });
-        },
       ),
     );
   }

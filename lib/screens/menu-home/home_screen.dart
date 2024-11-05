@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import '../components/header.dart';
-import '../components/bottom_navbar.dart';
-import '../data/dummy_data.dart';
-import 'add_pet_screen.dart';
+import '../../data/dummy_data.dart';
+import '../menu-pets/add_pet_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,41 +10,82 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(95.0),
-        child: const CustomHeader(title: 'Pet Notes'),
+        preferredSize: const Size.fromHeight(135.0),
+        child: _buildCustomHeader(),
       ),
       body: _buildMainContent(context),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+    );
+  }
+
+  Widget _buildCustomHeader() {
+    String todayDate = '${DateTime.now().day} ${[
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ][DateTime.now().month - 1]} ${DateTime.now().year}';
+
+    return Container(
+      padding: const EdgeInsets.only(
+          top: 36.0, left: 16.0, right: 16.0, bottom: 16.0),
+      color: const Color(0xFF4B2FB8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Hello, $userName!',
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFFFFC443),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Manage your pet’s notes and tasks easily!',
+            style: const TextStyle(
+              fontSize: 16,
+              color: Color(0xFFFFC443),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            todayDate,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Color(0xFFD7D7D7),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildMainContent(BuildContext context) {
-    // Cek jika daftar pet kosong
     if (pets.isEmpty) {
       return _buildEmptyPetScreen(context);
     }
 
     return Container(
-      color: const Color(0xFFF4F4F4),
-      padding: const EdgeInsets.all(20),
+      color: const Color(0xFF4B2FB8),
+      padding: const EdgeInsets.only(
+          top: 10.0, left: 20.0, right: 20.0, bottom: 20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
-          const SizedBox(height: 15),
+          const SizedBox(height: 8),
           Expanded(child: _buildPetsList(context)),
         ],
       ),
@@ -65,7 +104,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 10),
           Text(
             'Please add a pet first.',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
+            style: TextStyle(fontSize: 16, color: Color(0xFFD7D7D7)),
           ),
           const SizedBox(height: 20),
           ElevatedButton(
@@ -82,33 +121,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildHeader() {
-    String todayDate = '${DateTime.now().day} ${[
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ][DateTime.now().month - 1]} ${DateTime.now().year}';
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Hello, $userName!',
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        Text(todayDate,
-            style: const TextStyle(fontSize: 12, color: Colors.grey)),
-      ],
-    );
-  }
-
   Widget _buildPetsList(BuildContext context) {
     return ListView.builder(
       itemCount: pets.length,
@@ -121,59 +133,62 @@ class _HomePageState extends State<HomePage> {
   Widget _buildPetCard(BuildContext context, Pet pet) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10),
-      color: const Color(0xFFFFFFFF),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Image.network(
-                      pet.imageUrl?.isNotEmpty == true
-                          ? pet.imageUrl!
-                          : 'https://ik.imagekit.io/ggslopv3t/cropped_image.png?updatedAt=1728912899260',
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey,
-                          child: const Icon(Icons.error, color: Colors.red),
-                        );
-                      },
-                    ),
-                  ),
+      color: const Color(0xFFFFC443),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            height: 150,
+            decoration: BoxDecoration(
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(8)),
+              image: DecorationImage(
+                image: NetworkImage(
+                  pet.imageUrl?.isNotEmpty == true
+                      ? pet.imageUrl!
+                      : 'https://ik.imagekit.io/ggslopv3t/cropped_image.png?updatedAt=1730823417444',
                 ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          const SizedBox(height: 3),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      pet.name,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      pet.type,
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                      ),
+                    Column(
+                      children: [
+                        Text(
+                          pet.name,
+                          style: const TextStyle(
+                            color: Color(0xFF333333),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          pet.type,
+                          style: const TextStyle(
+                            color: Color(0xFF333333),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+                const SizedBox(height: 4),
+                _buildTasksList(context, pet.tasks),
               ],
             ),
-            const SizedBox(height: 7),
-            _buildTasksList(context, pet.tasks),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -181,7 +196,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildTasksList(BuildContext context, List<Task> tasks) {
     if (tasks.isEmpty) {
       return const Text('No tasks available.',
-          style: TextStyle(color: Colors.grey, fontSize: 12));
+          style: TextStyle(color: Color(0xFFD7D7D7), fontSize: 12));
     }
 
     return Column(
@@ -191,16 +206,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildTaskCard(Task task, BuildContext context) {
-    Color backgroundColor = task.status
-        ? const Color(0xFFB2E0B5)
-        : const Color(0xFFFDD7A9); // Menggunakan boolean untuk status
+    Color backgroundColor =
+        task.status ? const Color(0xFFB2E0B5) : const Color(0xFFFDD7A9);
 
     return Container(
       margin: const EdgeInsets.only(top: 8.0),
       padding: const EdgeInsets.symmetric(vertical: 3.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Colors.white,
+        color: Color(0xFFFFC443),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -225,7 +239,7 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   task.title,
                   style: const TextStyle(
-                    color: Colors.black,
+                    color: Color(0xFF333333),
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
                   ),
@@ -233,14 +247,18 @@ class _HomePageState extends State<HomePage> {
                 const SizedBox(height: 4),
                 Text(
                   task.time,
-                  style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  style:
+                      const TextStyle(color: Color(0xFF333333), fontSize: 12),
                 ),
               ],
             ),
           ),
           PopupMenuButton<String>(
-            padding: const EdgeInsets.only(right: 8),
-            icon: const Icon(Icons.more_vert),
+            padding: const EdgeInsets.only(right: 6),
+            icon: const Icon(
+              Icons.more_vert,
+              color: Color(0xFF333333),
+            ),
             onSelected: (value) {
               if (value == 'Status') {
                 _editTaskStatus(context, task);
