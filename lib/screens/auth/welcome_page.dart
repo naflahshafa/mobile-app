@@ -7,7 +7,7 @@ class WelcomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFF7B3A10),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -15,7 +15,7 @@ class WelcomePage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(5.0),
               decoration: BoxDecoration(
-                color: Colors.blue,
+                // color: Colors.brown,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Image.asset(
@@ -31,6 +31,7 @@ class WelcomePage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: Color(0xFFFFF1EC),
               ),
             ),
             const SizedBox(height: 15),
@@ -42,7 +43,7 @@ class WelcomePage extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.black54,
+                  color: Color(0xFFFFF1EC),
                 ),
               ),
             ),
@@ -76,11 +77,7 @@ class WelcomePage extends StatelessWidget {
   }) {
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blueAccent, Colors.lightBlue],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: const Color(0xFFFFF1EC),
         borderRadius: BorderRadius.circular(24),
       ),
       child: ElevatedButton(
@@ -89,15 +86,13 @@ class WelcomePage extends StatelessWidget {
         },
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          padding: const EdgeInsets.symmetric(
-              horizontal: 40, vertical: 20),
-          backgroundColor:
-              Colors.transparent,
+          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+          backgroundColor: Colors.transparent,
         ),
         child: Text(
           text,
           style: const TextStyle(
-            color: Color(0xFFFFFFFF),
+            color: Color(0xFF7B3A10),
             fontWeight: FontWeight.bold,
           ),
         ),

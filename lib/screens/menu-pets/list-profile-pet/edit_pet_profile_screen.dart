@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../components/bottom_navbar.dart';
-import '../../components/header.dart';
-import '../../data/dummy_data.dart';
+import '../../../data/dummy_data.dart';
 
 class EditPetProfileScreen extends StatefulWidget {
   final Pet pet;
@@ -15,37 +13,35 @@ class EditPetProfileScreen extends StatefulWidget {
 }
 
 class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
-  int currentIndex = 1; // Atur indeks awal untuk bottom nav
   final _formKey = GlobalKey<FormState>();
   late String name;
   late String dateOfBirth;
   late String sex;
   late String breed;
   late String category;
-  String? imageUrl; // Variabel untuk menyimpan URL gambar yang diunggah
+  String? imageUrl;
 
-  final ImagePicker _picker = ImagePicker(); // Inisialisasi ImagePicker
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
     super.initState();
-    // Inisialisasi variabel dengan data pet yang ada
     name = widget.pet.name;
-    dateOfBirth = widget.pet.birthDate.toString(); // Format sesuai kebutuhan
+    dateOfBirth = widget.pet.birthDate.toString();
     sex = widget.pet.sex;
     breed = widget.pet.breed;
     category = widget.pet.type;
-    imageUrl = widget.pet.imageUrl; // Set imageUrl awal
+    imageUrl = widget.pet.imageUrl;
   }
 
   Future<void> _uploadImage() async {
     final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.gallery, // Mengambil gambar dari galeri
+      source: ImageSource.gallery,
     );
 
     if (pickedFile != null) {
       setState(() {
-        imageUrl = pickedFile.path; // Simpan path gambar yang dipilih
+        imageUrl = pickedFile.path;
       });
     }
   }
@@ -59,7 +55,7 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
     );
     if (picked != null && picked != DateTime.parse(dateOfBirth)) {
       setState(() {
-        dateOfBirth = picked.toIso8601String(); // Simpan tanggal yang dipilih
+        dateOfBirth = picked.toIso8601String();
       });
     }
   }
@@ -67,15 +63,11 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(95.0),
-        child: CustomHeader(title: 'Pet Notes'), // Gunakan CustomHeader
-      ),
+      backgroundColor: const Color(0xFF7B3A10),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Form(
-          key: _formKey, // Mengaitkan Form dengan GlobalKey
+          key: _formKey,
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -91,14 +83,13 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         const Text(
-                          'Edit Pet Profile', // Judul ditambahkan di sini
+                          'Edit Pet Profile',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(
-                            height: 20), // Jarak antara judul dan gambar
+                        const SizedBox(height: 20),
                         Stack(
                           alignment: Alignment.center,
                           children: [
@@ -117,15 +108,18 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
                                         ),
                             ),
                             Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: CircleAvatar(
-                                backgroundColor: Colors.white,
+                              bottom: -7,
+                              right: -10,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.transparent,
+                                ),
                                 child: IconButton(
-                                  icon: const Icon(Icons.edit,
+                                  icon: const Icon(Icons.add_a_photo,
                                       color: Color(0xFF333333)),
                                   onPressed: () async {
-                                    await _uploadImage(); // Panggil fungsi untuk mengunggah gambar
+                                    await _uploadImage();
                                   },
                                 ),
                               ),
@@ -153,10 +147,6 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        // const Text(
-                        //   'Sex',
-                        //   style: TextStyle(fontSize: 16),
-                        // ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
@@ -213,8 +203,7 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
                               label: 'Cancel',
                               color: Colors.red,
                               onPressed: () {
-                                Navigator.pop(
-                                    context); // Kembali tanpa perubahan
+                                Navigator.pop(context);
                               },
                             ),
                             const SizedBox(width: 10),
@@ -228,15 +217,13 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
                                     context,
                                     Pet(
                                       name: name,
-                                      birthDate: DateTime.parse(
-                                          dateOfBirth), // Pastikan formatnya benar
+                                      birthDate: DateTime.parse(dateOfBirth),
                                       sex: sex,
                                       breed: breed,
                                       type: category,
                                       tasks: [],
                                       notes: [],
-                                      imageUrl:
-                                          imageUrl, // Gambar yang diunggah
+                                      imageUrl: imageUrl,
                                     ),
                                   );
                                 }
@@ -253,14 +240,6 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index; // Update the current index
-          });
-        },
-      ), // Custom bottom navbar dengan parameter yang diperlukan
     );
   }
 
@@ -284,7 +263,7 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
         if (value == null || value.isEmpty) {
           return 'Please enter $label';
         }
-        return null; // Return null if input is valid
+        return null;
       },
     );
   }
@@ -313,7 +292,7 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
         if (value == null) {
           return 'Please select $label';
         }
-        return null; // Return null if selection is valid
+        return null;
       },
     );
   }

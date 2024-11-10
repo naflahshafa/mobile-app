@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,27 +14,54 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool passwordObscure = true;
-  bool isFieldValid = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  @override
-  void initState() {
-    super.initState();
-    emailController.addListener(_validateFields);
-    passwordController.addListener(_validateFields);
-  }
+  Future<void> _signIn() async {
+    if (!_loginFormKey.currentState!.validate()) {
+      // If validation fails, stop the login process
+      return;
+    }
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+      // Navigate to the home page after successful login
+      context.go('/home');
+    } catch (e) {
+      String errorMessage = 'An error occurred. Please try again.';
 
-  void _validateFields() {
-    final email = emailController.text;
-    final password = passwordController.text;
+      // Check for specific Firebase error codes
+      if (e is FirebaseAuthException) {
+        switch (e.code) {
+          case 'user-not-found':
+            errorMessage = 'No user found for that email address.';
+            break;
+          case 'wrong-password':
+            errorMessage = 'Incorrect password. Please try again.';
+            break;
+          case 'invalid-email':
+            errorMessage = 'The email address is not valid.';
+            break;
+          default:
+            errorMessage = 'An unexpected error occurred. Please try again.';
+        }
+      }
 
-    if (email.isNotEmpty && password.isNotEmpty) {
-      setState(() {
-        isFieldValid = true;
-      });
-    } else {
-      setState(() {
-        isFieldValid = false;
-      });
+      // Show the error message in a dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Login Failed'),
+          content: Text(errorMessage),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -56,14 +84,11 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Header
                 Container(
                   height: 200,
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.blueAccent, Colors.lightBlue],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: Color(0xFF7B3A10),
                   ),
                   child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -73,17 +98,19 @@ class _LoginPageState extends State<LoginPage> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Color(0xFFFFF1EC),
                         ),
                       ),
                       SizedBox(height: 10),
                       Text(
                         "Sign in to continue",
-                        style: TextStyle(fontSize: 16, color: Colors.white70),
+                        style:
+                            TextStyle(fontSize: 16, color: Color(0xFFFFF1EC)),
                       ),
                     ],
                   ),
                 ),
+                // Login Form
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Form(
@@ -96,12 +123,11 @@ class _LoginPageState extends State<LoginPage> {
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             labelText: "Email",
-                            labelStyle: const TextStyle(
-                                color: Colors.blue),
+                            labelStyle:
+                                const TextStyle(color: Color(0xFF7B3A10)),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                  color:
-                                      Colors.blue),
+                              borderSide:
+                                  const BorderSide(color: Color(0xFF7B3A10)),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             border: OutlineInputBorder(
@@ -125,12 +151,11 @@ class _LoginPageState extends State<LoginPage> {
                           obscureText: passwordObscure,
                           decoration: InputDecoration(
                             labelText: "Password",
-                            labelStyle: const TextStyle(
-                                color: Colors.blue),
+                            labelStyle:
+                                const TextStyle(color: Color(0xFF7B3A10)),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                  color:
-                                      Colors.blue),
+                              borderSide:
+                                  const BorderSide(color: Color(0xFF7B3A10)),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             border: OutlineInputBorder(
@@ -141,7 +166,7 @@ class _LoginPageState extends State<LoginPage> {
                                 passwordObscure
                                     ? Icons.visibility_off
                                     : Icons.visibility,
-                                color: Colors.blue,
+                                color: const Color(0xFF7B3A10),
                               ),
                               onPressed: () {
                                 setState(() {
@@ -159,37 +184,34 @@ class _LoginPageState extends State<LoginPage> {
                             return null;
                           },
                         ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: () {
-                              // Handle forgot password action
-                            },
-                            child: const Text(
-                              "Forgot Password?",
-                              style: TextStyle(
-                                  color: Colors.blue),
-                            ),
-                          ),
-                        ),
+                        // Align(
+                        //   alignment: Alignment.centerRight,
+                        //   child: TextButton(
+                        //     onPressed: () {
+                        //       // Handle forgot password action
+                        //     },
+                        //     child: const Text(
+                        //       "Forgot Password?",
+                        //       style: TextStyle(color: Colors.blue),
+                        //     ),
+                        //   ),
+                        // ),
                         const SizedBox(height: 20),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF7B3A10),
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            foregroundColor:
-                                isFieldValid ? Colors.black87 : Colors.grey,
                           ),
-                          onPressed: isFieldValid
-                              ? () {
-                                  if (_loginFormKey.currentState!.validate()) {
-                                    context.go('/home');
-                                  }
-                                }
-                              : null,
-                          child: const Text("Sign In"),
+                          onPressed: _signIn,
+                          child: const Text(
+                            "Sign In",
+                            style: TextStyle(
+                              color: Color(0xFFFFF1EC),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -206,7 +228,7 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       child: const Text(
                         "Sign up",
-                        style: TextStyle(color: Colors.blue),
+                        style: TextStyle(color: Color(0xFF7B3A10)),
                       ),
                     ),
                   ],

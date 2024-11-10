@@ -9,7 +9,7 @@ class CustomHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 95.0,
-      color: const Color(0xFF4B2FB8),
+      color: const Color(0xFF7B3A10),
       child: Center(
         child: Padding(
           padding: const EdgeInsets.only(top: 20.0),
@@ -18,7 +18,7 @@ class CustomHeader extends StatelessWidget {
             style: const TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.bold,
-              color: Color(0xFFFFC443),
+              color: Color(0xFFF4F4F4),
             ),
           ),
         ),

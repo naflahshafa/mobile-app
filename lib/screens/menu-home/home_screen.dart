@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../data/dummy_data.dart';
-import '../menu-pets/add_pet_screen.dart';
+import '../menu-pets/list-profile-pet/add_pet_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
     return Container(
       padding: const EdgeInsets.only(
           top: 36.0, left: 16.0, right: 16.0, bottom: 16.0),
-      color: const Color(0xFF4B2FB8),
+      color: const Color(0xFF7B3A10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -49,7 +49,7 @@ class _HomePageState extends State<HomePage> {
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: Color(0xFFFFC443),
+              color: Color(0xFFF4F4F4),
             ),
           ),
           const SizedBox(height: 4),
@@ -57,7 +57,7 @@ class _HomePageState extends State<HomePage> {
             'Manage your pet’s notes and tasks easily!',
             style: const TextStyle(
               fontSize: 16,
-              color: Color(0xFFFFC443),
+              color: Color(0xFFF4F4F4),
             ),
           ),
           const SizedBox(height: 4),
@@ -65,7 +65,7 @@ class _HomePageState extends State<HomePage> {
             todayDate,
             style: const TextStyle(
               fontSize: 12,
-              color: Color(0xFFD7D7D7),
+              color: Color(0xFFF4F4F4),
             ),
           ),
         ],
@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     return Container(
-      color: const Color(0xFF4B2FB8),
+      color: const Color(0xFF7B3A10),
       padding: const EdgeInsets.only(
           top: 10.0, left: 20.0, right: 20.0, bottom: 20.0),
       child: Column(
@@ -133,7 +133,6 @@ class _HomePageState extends State<HomePage> {
   Widget _buildPetCard(BuildContext context, Pet pet) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10),
-      color: const Color(0xFFFFC443),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -214,7 +213,6 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.symmetric(vertical: 3.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        color: Color(0xFFFFC443),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -253,32 +251,8 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          PopupMenuButton<String>(
-            padding: const EdgeInsets.only(right: 6),
-            icon: const Icon(
-              Icons.more_vert,
-              color: Color(0xFF333333),
-            ),
-            onSelected: (value) {
-              if (value == 'Status') {
-                _editTaskStatus(context, task);
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'Status',
-                child: Text('Mark as Completed'),
-              ),
-            ],
-          ),
         ],
       ),
-    );
-  }
-
-  void _editTaskStatus(BuildContext context, Task task) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Mark as Completed: ${task.title}')),
     );
   }
 }

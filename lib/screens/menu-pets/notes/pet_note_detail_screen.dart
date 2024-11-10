@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../components/bottom_navbar.dart';
-import '../../components/header.dart';
-import '../../data/dummy_data.dart'; // Pastikan untuk mengimpor file data yang sesuai
-import 'edit_pet_note_screen.dart'; // Import the EditPetNoteScreen
+import 'package:go_router/go_router.dart';
+import '../../../components/header.dart';
+import '../../../data/dummy_data.dart';
 
 class NoteDetailPage extends StatefulWidget {
   final Note note;
-  final Pet pet; // Menambahkan pet ke constructor
+  final Pet pet;
 
   const NoteDetailPage({super.key, required this.note, required this.pet});
 
@@ -15,39 +14,33 @@ class NoteDetailPage extends StatefulWidget {
 }
 
 class _NoteDetailPageState extends State<NoteDetailPage> {
-  int currentIndex = 1; // Set default index for BottomNavigationBar
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: const Color(0xFF7B3A10),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(95.0),
-        child: CustomHeader(title: 'Pet Notes'), // Menggunakan CustomHeader
+        child: CustomHeader(title: 'Detail Pet Note'),
       ),
       body: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start, // Mengatur alignment ke kiri
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            margin: const EdgeInsets.all(10), // Menambahkan margin untuk tombol
+            margin: const EdgeInsets.all(10),
             child: TextButton.icon(
-              icon: const Icon(Icons.arrow_back, color: Color(0xFF333333)),
+              icon: const Icon(Icons.arrow_back, color: Color(0xFFF4F4F4)),
               label: const Text(
                 'Back',
-                style:
-                    TextStyle(color: Color(0xFF333333)), // Mengatur warna teks
+                style: TextStyle(color: Color(0xFFF4F4F4)),
               ),
               onPressed: () {
-                Navigator.of(context).pop(); // Kembali ke halaman sebelumnya
+                Navigator.of(context).pop();
               },
             ),
           ),
-          const SizedBox(height: 10), // Jarak antara tombol Back dan Card
-
+          const SizedBox(height: 10),
           Expanded(
             child: SingleChildScrollView(
-              // Menambahkan ScrollView
               child: Card(
                 elevation: 4.0,
                 shape: RoundedRectangleBorder(
@@ -59,7 +52,7 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment:
-                        CrossAxisAlignment.start, // Mengubah alignment ke kiri
+                        CrossAxisAlignment.start, // Atur alignment ke kiri
                     children: [
                       const SizedBox(height: 20),
                       // Title Note
@@ -71,14 +64,12 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Nama Pemilik Note (Nama Pet)
                       Row(
                         children: [
                           const Icon(Icons.pets),
                           const SizedBox(width: 8),
                           Text(
-                            widget
-                                .pet.name, // Mengambil nama pet dari objek pet
+                            widget.pet.name,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -106,13 +97,12 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                       ),
 
                       const SizedBox(height: 20),
-                      // Tanggal Note (Jika ada, Anda dapat menambahkan logika untuk mendapatkan tanggal)
+                      // Tanggal Note (Tambahkan logika untuk mendapatkan tanggal)
                       const Text(
-                        "2024-10-02 7:00 PM", // Anda bisa menambahkan logika dinamis di sini
+                        "2024-10-02 7:00 PM", // Tambahkan logika dinamis di sini
                         style: TextStyle(color: Colors.grey),
                       ),
                       const SizedBox(height: 20),
-                      // Tombol Edit Note
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
@@ -124,19 +114,8 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                           ),
                         ),
                         onPressed: () {
-                          // Navigate to the EditPetNoteScreen
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EditPetNoteScreen(
-                                note: widget.note,
-                              ),
-                            ),
-                          ).then((updatedNote) {
-                            if (updatedNote != null) {
-                              // Handle the updated note here if needed
-                            }
-                          });
+                          context.go('/pets/noteDetail/editPetNote',
+                              extra: widget.note);
                         },
                         child: const Text('Edit Note'),
                       ),
@@ -164,14 +143,6 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index; // Update the current index when tapped
-          });
-        },
       ),
     );
   }

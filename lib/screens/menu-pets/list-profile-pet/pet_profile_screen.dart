@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../data/dummy_data.dart';
-import 'pet_screen.dart';
-import 'edit_pet_profile_screen.dart';
+import 'package:go_router/go_router.dart';
+import '../../../data/dummy_data.dart';
 
 class PetProfileScreen extends StatelessWidget {
   final Pet pet;
@@ -11,25 +10,22 @@ class PetProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: const Color(0xFF7B3A10),
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color(0xFF7B3A10),
         elevation: 0,
         title: Row(
           children: [
             IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color(0xFF333333)),
+              icon: const Icon(Icons.arrow_back, color: Color(0xFFF4F4F4)),
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PetPage()),
-                );
+                context.go('/pets');
               },
             ),
             const Text(
               'Back',
-              style: TextStyle(color: Color(0xFF333333), fontSize: 16),
+              style: TextStyle(color: Color(0xFFF4F4F4), fontSize: 16),
             ),
           ],
         ),
@@ -76,7 +72,7 @@ class PetProfileScreen extends StatelessWidget {
                           Icon(
                             pet.sex == 'Male' ? Icons.male : Icons.female,
                             size: 30,
-                            color: Colors.blue, // Customize color as needed
+                            color: Colors.brown,
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -100,17 +96,12 @@ class PetProfileScreen extends StatelessWidget {
                             label: 'Edit Pet Profile',
                             color: Colors.blue,
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      EditPetProfileScreen(pet: pet),
-                                ),
-                              ).then((value) {
-                                // Reload pet profile after returning from edit
+                              context
+                                  .push('/pets/profile/editProfile', extra: pet)
+                                  .then((value) {
                                 if (value != null && value is Pet) {
-                                  // If the value is a Pet object, update the local pet
-                                  // In a real app, you would likely manage the state more globally
+                                  // Update local pet with returned value
+                                  // You might use state management here to handle this globally
                                 }
                               });
                             },

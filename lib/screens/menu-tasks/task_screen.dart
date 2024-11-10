@@ -15,7 +15,6 @@ class TaskPage extends StatefulWidget {
 class _TaskPageState extends State<TaskPage> {
   DateTime _selectedDay = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
-  int currentIndex = 2;
   bool? showCompleted;
 
   // Filtered list of tasks based on selected day and status filter
@@ -39,7 +38,7 @@ class _TaskPageState extends State<TaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: const Color(0xFFFFF1EC),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(95.0),
         child: CustomHeader(title: 'Tasks'),
@@ -70,13 +69,11 @@ class _TaskPageState extends State<TaskPage> {
             // Customizing calendar's header style
             calendarStyle: CalendarStyle(
               todayDecoration: BoxDecoration(
-                color: Colors.blue
-                    .withOpacity(0.3), // Today's date with transparent blue
+                color: Colors.brown.withOpacity(0.4),
                 shape: BoxShape.circle,
               ),
               selectedDecoration: BoxDecoration(
-                color: Colors.blue
-                    .withOpacity(0.5), // Selected date color with transparency
+                color: Colors.brown.withOpacity(0.7),
                 shape: BoxShape.circle,
               ),
               defaultDecoration: BoxDecoration(
@@ -110,76 +107,84 @@ class _TaskPageState extends State<TaskPage> {
           // Filter buttons (completed and missed) (fixed)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const SizedBox(width: 20),
-                // "All" button
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      showCompleted = null; // Show all tasks
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: showCompleted == null
-                        ? const Color(0xFF333333)
-                        : Colors.white,
-                  ),
-                  child: Text(
-                    'All',
-                    style: TextStyle(
-                      color: showCompleted == null
-                          ? Colors.white
-                          : const Color(0xFF333333),
+            child: Container(
+              height: 30,
+              child: ListView(
+                scrollDirection:
+                    Axis.horizontal, // ListView scroll horizontally
+                children: [
+                  const SizedBox(width: 20),
+                  // "All" button
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        showCompleted = null; // Show all tasks
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: showCompleted == null
+                          ? const Color(0xFF7B3A10)
+                          : Colors.white,
+                      elevation: 0, // remove shadow
+                    ),
+                    child: Text(
+                      'All',
+                      style: TextStyle(
+                        color: showCompleted == null
+                            ? Colors.white
+                            : const Color(0xFF7B3A10),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 20),
-                // "Completed" button
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      showCompleted = true; // Show completed tasks
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: showCompleted == true
-                        ? const Color(0xFF333333)
-                        : Colors.white,
-                  ),
-                  child: Text(
-                    'Completed',
-                    style: TextStyle(
-                      color: showCompleted == true
-                          ? Colors.white
-                          : const Color(0xFF333333),
+                  const SizedBox(width: 20),
+                  // "Completed" button
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        showCompleted = true; // Show completed tasks
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: showCompleted == true
+                          ? const Color(0xFF7B3A10)
+                          : Colors.white,
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Completed',
+                      style: TextStyle(
+                        color: showCompleted == true
+                            ? Colors.white
+                            : const Color(0xFF7B3A10),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 20),
-                // "Missed" button
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      showCompleted = false; // Show missed tasks
-                    });
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: showCompleted == false
-                        ? const Color(0xFF333333)
-                        : Colors.white,
-                  ),
-                  child: Text(
-                    'Missed',
-                    style: TextStyle(
-                      color: showCompleted == false
-                          ? Colors.white
-                          : const Color(0xFF333333),
+                  const SizedBox(width: 20),
+                  // "Missed" button
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        showCompleted = false; // Show missed tasks
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: showCompleted == false
+                          ? const Color(0xFF7B3A10)
+                          : Colors.white,
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Missed',
+                      style: TextStyle(
+                        color: showCompleted == false
+                            ? Colors.white
+                            : const Color(0xFF7B3A10),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 20),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -193,25 +198,21 @@ class _TaskPageState extends State<TaskPage> {
                 Row(
                   children: const [
                     Icon(Icons.calendar_month,
-                        size: 30, color: Color(0xFF333333)),
+                        size: 30, color: Color(0xFF7B3A10)),
                     SizedBox(width: 10),
                     Text(
                       'Tasks',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF333333),
+                        color: Color(0xFF7B3A10),
                       ),
                     ),
                   ],
                 ),
                 Container(
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.blueAccent, Colors.lightBlue],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: Color(0xFF7B3A10),
                     borderRadius: BorderRadius.all(Radius.circular(45)),
                   ),
                   child: ElevatedButton(
@@ -231,7 +232,7 @@ class _TaskPageState extends State<TaskPage> {
                     ),
                     child: const Text(
                       'Add Task',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Color(0xFFFFF1EC)),
                     ),
                   ),
                 ),
@@ -252,18 +253,13 @@ class _TaskPageState extends State<TaskPage> {
                             .firstWhere((pet) => pet.tasks.contains(task))
                             .name;
 
-                        // Define the background color based on the task status
                         Color backgroundColor = task.status
-                            ? const Color(
-                                0xFFB2E0B5) // Completed: Greenish background
-                            : const Color(
-                                0xFFFDD7A9); // Incomplete: Orangish background
+                            ? const Color(0xFFB2E0B5)
+                            : const Color(0xFFFDD7A9);
 
                         return Card(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 4), // Margin for spacing
-                          color: const Color(
-                              0xFFFFFFFF), // Set card background to white
+                          margin: const EdgeInsets.symmetric(vertical: 4),
+                          color: const Color(0xFFFFF1EC),
                           child: ListTile(
                             leading: Container(
                               width: 40,
@@ -283,8 +279,8 @@ class _TaskPageState extends State<TaskPage> {
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(petName), // Pet name displayed here
-                                Text(task.time), // Task time displayed below
+                                Text(petName),
+                                Text(task.time),
                               ],
                             ),
                             trailing: PopupMenuButton<String>(

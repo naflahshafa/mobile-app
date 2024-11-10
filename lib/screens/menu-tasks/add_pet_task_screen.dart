@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../components/bottom_navbar.dart';
 import '../../components/header.dart';
 import '../../data/dummy_data.dart';
 
@@ -12,7 +11,6 @@ class AddPetTaskScreen extends StatefulWidget {
 }
 
 class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
-  int currentIndex = 2;
   final _formKey = GlobalKey<FormState>();
   late String selectedPet;
   late String title;
@@ -37,7 +35,7 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Colors.blueAccent,
+              primary: Colors.brown,
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -57,10 +55,10 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: const Color(0xFF7B3A10),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(95.0),
-        child: CustomHeader(title: 'Pet Notes'),
+        child: CustomHeader(title: 'Add Pet Task'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -78,14 +76,14 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Add Pet Task',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+                    // const Text(
+                    //   'Add Pet Task',
+                    //   style: TextStyle(
+                    //     fontSize: 20,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
+                    const SizedBox(height: 5),
                     _buildPetDropdown(),
                     const SizedBox(height: 10),
                     _buildDateField(
@@ -98,7 +96,7 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
                       label: 'Title',
                       icon: Icons.title,
                       onChanged: (value) => title = value,
-                      hintText: 'Enter task title', // Placeholder for title
+                      hintText: 'Enter task title',
                     ),
                     const SizedBox(height: 10),
                     _buildTextField(
@@ -106,8 +104,7 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
                       icon: Icons.description,
                       onChanged: (value) => description = value,
                       maxLines: 5,
-                      hintText:
-                          'Enter task description', // Placeholder for description
+                      hintText: 'Enter task description',
                     ),
                     const SizedBox(height: 20),
                     Row(
@@ -150,14 +147,6 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-      ),
     );
   }
 
@@ -193,7 +182,7 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
-            hintText: 'Select a pet', // Placeholder for pet selection
+            hintText: 'Select a pet',
           ),
         ),
       ],
@@ -230,7 +219,7 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
                   : 'Select date',
               style: TextStyle(
                 fontSize: 16,
-                color: date == null ? Colors.grey : Colors.black,
+                color: date == null ? Colors.grey[600] : Colors.black,
               ),
             ),
           ),
@@ -273,7 +262,7 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
-            hintText: hintText, // Set the hintText here
+            hintText: hintText, // Set the hintText
           ),
           onChanged: onChanged,
           validator: (value) {

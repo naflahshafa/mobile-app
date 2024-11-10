@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../components/bottom_navbar.dart';
-import '../../components/header.dart';
-import '../../data/dummy_data.dart';
+import '../../../components/header.dart';
+import '../../../data/dummy_data.dart';
 
 class AddPetNoteScreen extends StatefulWidget {
   const AddPetNoteScreen({super.key});
@@ -11,7 +10,6 @@ class AddPetNoteScreen extends StatefulWidget {
 }
 
 class _AddPetNoteScreenState extends State<AddPetNoteScreen> {
-  int currentIndex = 1; // Set default index for BottomNavigationBar
   final _formKey = GlobalKey<FormState>();
   late String title;
   late String description;
@@ -19,7 +17,6 @@ class _AddPetNoteScreenState extends State<AddPetNoteScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize fields
     title = '';
     description = '';
   }
@@ -27,15 +24,15 @@ class _AddPetNoteScreenState extends State<AddPetNoteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: const Color(0xFF7B3A10),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(95.0),
-        child: CustomHeader(title: 'Pet Notes'), // Use CustomHeader
+        child: CustomHeader(title: 'Add Pet Note'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Form(
-          key: _formKey, // Associate the Form with GlobalKey
+          key: _formKey,
           child: SingleChildScrollView(
             child: Card(
               shape: RoundedRectangleBorder(
@@ -48,26 +45,17 @@ class _AddPetNoteScreenState extends State<AddPetNoteScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Add Pet Note',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(
-                        height: 20), // Space between title and fields
                     _buildTextField(
                       label: 'Title',
                       icon: Icons.title,
                       onChanged: (value) => title = value,
                     ),
-                    const SizedBox(height: 10), // Space between fields
+                    const SizedBox(height: 10),
                     _buildTextField(
                       label: 'Description',
                       icon: Icons.description,
                       onChanged: (value) => description = value,
-                      maxLines: 5, // Allow multiple lines for description
+                      maxLines: 5, // multiple lines for description
                     ),
                     const SizedBox(height: 20),
                     Row(
@@ -77,7 +65,7 @@ class _AddPetNoteScreenState extends State<AddPetNoteScreen> {
                           label: 'Cancel',
                           color: Colors.red,
                           onPressed: () {
-                            Navigator.pop(context); // Go back without changes
+                            Navigator.pop(context);
                           },
                         ),
                         const SizedBox(width: 10),
@@ -107,14 +95,6 @@ class _AddPetNoteScreenState extends State<AddPetNoteScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index; // Update the current index when tapped
-          });
-        },
-      ),
     );
   }
 
@@ -123,15 +103,15 @@ class _AddPetNoteScreenState extends State<AddPetNoteScreen> {
     required IconData icon,
     required Function(String) onChanged,
     String? initialValue,
-    int maxLines = 1, // Default to 1 line
+    int maxLines = 1,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Icon(icon), // The icon aligned with the text
-            const SizedBox(width: 8), // Space between icon and label
+            Icon(icon),
+            const SizedBox(width: 8),
             Expanded(
               child: Text(
                 label,
@@ -143,12 +123,11 @@ class _AddPetNoteScreenState extends State<AddPetNoteScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 8), // Space between label and text field
+        const SizedBox(height: 8),
         TextFormField(
           initialValue: initialValue,
           maxLines: maxLines,
           decoration: InputDecoration(
-            // Removed labelText to avoid redundancy
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
@@ -156,9 +135,9 @@ class _AddPetNoteScreenState extends State<AddPetNoteScreen> {
           onChanged: onChanged,
           validator: (value) {
             if (value == null || value.isEmpty) {
-              return 'Please enter $label'; // Validation message
+              return 'Please enter $label';
             }
-            return null; // Return null if input is valid
+            return null;
           },
         ),
       ],

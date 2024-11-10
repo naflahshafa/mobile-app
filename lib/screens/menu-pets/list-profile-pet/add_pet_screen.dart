@@ -2,7 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import '../../components/header.dart';
+import 'package:go_router/go_router.dart';
+import '../../../components/header.dart';
 
 class AddPetScreen extends StatefulWidget {
   @override
@@ -31,7 +32,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: ColorScheme.light(
-              primary: Colors.blueAccent,
+              primary: Colors.brown,
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -63,7 +64,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF4B2FB8),
+      backgroundColor: const Color(0xFF7B3A10),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(95.0),
         child: CustomHeader(title: 'Add New Pet'),
@@ -76,7 +77,6 @@ class _AddPetScreenState extends State<AddPetScreen> {
             child: Column(
               children: [
                 Card(
-                  color: const Color(0xFFFFC443),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16.0),
                   ),
@@ -113,14 +113,13 @@ class _AddPetScreenState extends State<AddPetScreen> {
                             icon: Icons.category,
                             onChanged: (value) => category = value),
                         const SizedBox(height: 20),
-
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: () {
-                                  Navigator.pop(context);
+                                  context.go('/pets');
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
@@ -209,15 +208,17 @@ class _AddPetScreenState extends State<AddPetScreen> {
         labelText: label,
         prefixIcon: Icon(icon),
         border: OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF333333)), // Set border color
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: Color(0xFF333333)), // Set border color when enabled
+            color: Theme.of(context).colorScheme.outline,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: BorderSide(
-              color: Color(0xFF333333)), // Set border color when focused
+            color: Theme.of(context).colorScheme.primary,
+          ),
         ),
       ),
       onChanged: onChanged,
@@ -225,7 +226,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
         if (value == null || value.isEmpty) {
           return 'Please enter $label';
         }
-        return null; // Return null if input is valid
+        return null;
       },
     );
   }
@@ -242,13 +243,18 @@ class _AddPetScreenState extends State<AddPetScreen> {
           child: InputDecorator(
             decoration: InputDecoration(
               border: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF333333)),
+                borderSide:
+                    BorderSide(color: Theme.of(context).colorScheme.outline),
               ),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF333333)),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF333333)),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
               suffixIcon: Icon(Icons.calendar_today),
               contentPadding:
@@ -260,9 +266,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
                   : 'Select date', // Placeholder jika tidak ada tanggal
               style: TextStyle(
                 fontSize: 16,
-                color: date == null
-                    ? Color(0xFF333333)
-                    : Color(0xFF333333), // Warna placeholder abu-abu
+                color: date == null ? Color(0xFF333333) : Color(0xFF333333),
               ),
             ),
           ),

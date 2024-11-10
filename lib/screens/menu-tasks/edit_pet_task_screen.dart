@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../components/bottom_navbar.dart';
 import '../../components/header.dart';
 import '../../data/dummy_data.dart';
 
@@ -16,7 +15,6 @@ class EditPetTaskScreen extends StatefulWidget {
 }
 
 class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
-  int currentIndex = 2;
   final _formKey = GlobalKey<FormState>();
   late String selectedPet;
   late String title;
@@ -26,13 +24,13 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
   @override
   void initState() {
     super.initState();
-    selectedPet = widget.petName; // Load the current pet name
-    title = widget.task.title; // Load the current task title
-    description = widget.task.description; // Load the current task description
+    selectedPet = widget.petName;
+    title = widget.task.title;
+    description = widget.task.description;
 
     // Change the date format to parse from 'dd-MM-yyyy' to 'yyyy-MM-dd'
     dueDate = DateFormat('yyyy-MM-dd')
-        .parse(widget.task.time); // Load the current due date
+        .parse(widget.task.time);
   }
 
   Future<void> _selectDueDate(BuildContext context) async {
@@ -45,7 +43,7 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
         return Theme(
           data: ThemeData.light().copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Colors.blueAccent,
+              primary: Colors.brown,
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -65,10 +63,10 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: const Color(0xFF7B3A10),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(95.0),
-        child: CustomHeader(title: 'Pet Notes'),
+        child: CustomHeader(title: 'Edit Pet Task'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
@@ -86,14 +84,14 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Edit Pet Task',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+                    // const Text(
+                    //   'Edit Pet Task',
+                    //   style: TextStyle(
+                    //     fontSize: 20,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
+                    const SizedBox(height: 5),
                     _buildPetDropdown(),
                     const SizedBox(height: 10),
                     _buildDateField(
@@ -158,14 +156,6 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
       ),
     );
   }

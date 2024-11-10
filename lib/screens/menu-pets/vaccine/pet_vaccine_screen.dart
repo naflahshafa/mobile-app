@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../data/dummy_data.dart';
-import 'pet_screen.dart';
-import 'pet_note_detail_screen.dart';
-import 'add_pet_note_screen.dart';
+import '../../../data/dummy_data.dart';
+import '../pet_screen.dart';
+import '../notes/pet_note_detail_screen.dart';
+import '../notes/add_pet_note_screen.dart';
 
-class PetNotesScreen extends StatelessWidget {
-  final Pet pet;
+class PetVaccineScreen extends StatefulWidget {
+  const PetVaccineScreen({super.key});
 
-  const PetNotesScreen({super.key, required this.pet});
+  @override
+  _PetVaccineScreenState createState() => _PetVaccineScreenState();
+}
+
+class _PetVaccineScreenState extends State<PetVaccineScreen> {
+  Pet? selectedPet; // Variable to hold the selected pet
 
   @override
   Widget build(BuildContext context) {
@@ -18,21 +23,16 @@ class PetNotesScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildBackButton(context), // Tambahkan tombol back
+            _buildBackButton(context), // Add back button
             const SizedBox(height: 10),
-            _buildHeader(context, pet),
+            _buildHeader(context),
             const SizedBox(height: 10),
-            Expanded(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: ListView.builder(
-                  itemCount: pet.notes.length,
-                  itemBuilder: (context, index) {
-                    return _buildNoteCard(context, pet.notes[index]);
-                  },
-                ),
+            _buildPetSelectionDropdown(), // Dropdown to select pet
+            const SizedBox(height: 10),
+            if (selectedPet != null)
+              Expanded(
+                child: _buildNotesListView(selectedPet!),
               ),
-            ),
           ],
         ),
       ),
@@ -44,30 +44,30 @@ class PetNotesScreen extends StatelessWidget {
       icon: const Icon(Icons.arrow_back, color: Color(0xFF333333)),
       label: const Text(
         'Back',
-        style: TextStyle(color: Color(0xFF333333)), // Mengatur warna teks
+        style: TextStyle(color: Color(0xFF333333)),
       ),
       onPressed: () {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const PetPage()),
-        ); // Kembali ke halaman sebelumnya
+        ); // Go back to the PetPage
       },
     );
   }
 
-  Widget _buildHeader(BuildContext context, Pet pet) {
+  Widget _buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
-            children: [
-              const Icon(Icons.notes, size: 30, color: Color(0xFF333333)),
-              const SizedBox(width: 10),
+            children: const [
+              Icon(Icons.notes, size: 30, color: Color(0xFF333333)),
+              SizedBox(width: 10),
               Text(
-                "${pet.name}'s Notes", // Display pet's name in the header
-                style: const TextStyle(
+                "Pet's Notes",
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF333333),
@@ -88,9 +88,7 @@ class PetNotesScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => AddPetNoteScreen(),
-                  ),
+                  MaterialPageRoute(builder: (context) => AddPetNoteScreen()),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -110,28 +108,66 @@ class PetNotesScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildPetSelectionDropdown() {
+    return DropdownButton<Pet>(
+      value: selectedPet,
+      hint: const Text("Select a Pet"),
+      isExpanded: true,
+      items: pets.map<DropdownMenuItem<Pet>>((Pet pet) {
+        return DropdownMenuItem<Pet>(
+          value: pet,
+          child: Text(pet.name),
+        );
+      }).toList(),
+      onChanged: (Pet? newPet) {
+        setState(() {
+          selectedPet = newPet;
+        });
+      },
+    );
+  }
+
+  Widget _buildNotesListView(Pet pet) {
+    if (pet.notes.isEmpty) {
+      return _buildEmptyNotesMessage();
+    }
+
+    return ListView.builder(
+      itemCount: pet.notes.length,
+      itemBuilder: (context, index) {
+        return _buildNoteCard(context, pet.notes[index]);
+      },
+    );
+  }
+
+  Widget _buildEmptyNotesMessage() {
+    return Center(
+      child: Text(
+        "No notes available for this pet.",
+        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+      ),
+    );
+  }
+
   Widget _buildNoteCard(BuildContext context, Note note) {
     return Card(
       elevation: 4.0,
       margin: const EdgeInsets.symmetric(vertical: 6.0),
       color: const Color(0xFFFFFFFF),
       child: Padding(
-        padding:
-            const EdgeInsets.all(8.0), // Add some padding for better spacing
+        padding: const EdgeInsets.all(8.0),
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start, // Align contents to start
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
               title: Text(note.title),
               subtitle: _buildNoteDescription(note.description),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
-                // Navigasi ke NoteDetailPage dengan mengirimkan objek note dan pet
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) => NoteDetailPage(
-                    note: note, // Mengirim objek note
-                    pet: pet, // Mengirim objek pet yang sesuai
+                    note: note,
+                    pet: selectedPet!, // Send selected pet
                   ),
                 ));
               },
@@ -143,7 +179,7 @@ class PetNotesScreen extends StatelessWidget {
   }
 
   Widget _buildNoteDescription(String description) {
-    const int wordLimit = 20; // Batasi 20 kata
+    const int wordLimit = 20; // Limit to 20 words
     final words = description.split(' ');
 
     if (words.length <= wordLimit) {

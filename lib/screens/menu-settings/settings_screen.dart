@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
 import '../../components/header.dart';
-import 'edit_profile_screen.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -10,12 +11,35 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   int currentIndex = 3;
+
+  Future<void> _logout() async {
+    try {
+      await _auth.signOut();
+      context.go('/login'); // Navigate to the login page upon successful logout
+    } catch (e) {
+      // Show error dialog if sign out fails
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Logout Failed'),
+          content: Text(e.toString()),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: const Color(0xFFFFF1EC),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(95.0),
         child: const CustomHeader(title: 'Settings'),
@@ -23,68 +47,46 @@ class _SettingsPageState extends State<SettingsPage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title Row
-            Row(
-              children: [
-                const Icon(Icons.settings, size: 30, color: Color(0xFF333333)),
-                const SizedBox(width: 10),
-                const Text(
-                  'Settings',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF333333),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Center the rest of the content vertically
+            const SizedBox(height: 10),
             Expanded(
               child: Center(
                 child: Column(
-                  mainAxisAlignment:
-                      MainAxisAlignment.start, // Align content to the start
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     CircleAvatar(
-                      radius: 50, // Adjust the radius for profile picture
+                      radius: 50,
                       backgroundImage: NetworkImage(
                           'https://ik.imagekit.io/ggslopv3t/cropped_image.png?updatedAt=1728912899260'),
                     ),
-                    const SizedBox(height: 10), // Reduced spacing
+                    const SizedBox(height: 10),
                     const Text(
                       'Naflah Shafa',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF333333)),
                     ),
-                    const SizedBox(height: 20), // Space before buttons
+                    const SizedBox(height: 20),
 
                     // Edit Profile Button
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const EditProfilePage(),
-                          ),
-                        );
+                        context.go('/settings/editProfile');
                       },
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
                             vertical: 15), // Button height
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: const Color(0xFFFFF1EC),
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.grey,
                               blurRadius: 4,
-                              offset:
-                                  Offset(0, 2), // changes position of shadow
+                              offset: Offset(0, 2), // Position of shadow
                             ),
                           ],
                         ),
@@ -92,60 +94,52 @@ class _SettingsPageState extends State<SettingsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0), // Add horizontal padding
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Row(
                                 children: [
                                   const Icon(Icons.edit,
-                                      color: Color(
-                                          0xFF333333)), // Icon for Edit Profile
+                                      color: Color(0xFF333333)),
                                   const SizedBox(width: 10),
                                   const Text(
                                     'Edit Profile',
                                     style: TextStyle(
-                                      color: Color(0xFF333333), // Text color
-                                      fontSize: 16, // Adjust font size
-                                      fontWeight: FontWeight.bold, // Bold font
+                                      color: Color(0xFF333333),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(
-                                  right: 16.0), // Padding for the arrow
+                              padding: const EdgeInsets.only(right: 16.0),
                               child: const Icon(
-                                Icons.arrow_forward_ios, // Arrow icon
+                                Icons.arrow_forward_ios,
                                 size: 16,
-                                color:
-                                    Color(0xFF333333), // Color for arrow icon
+                                color: Color(0xFF333333),
                               ),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 10), // Add some spacing
+                    const SizedBox(height: 10),
 
                     // Logout Button
                     GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context,
-                            '/welcome'); // Navigate to the /welcome route
-                      },
+                      onTap: _logout,
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 15), // Button height
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: const Color(0xFFFFF1EC),
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: const [
                             BoxShadow(
                               color: Colors.grey,
                               blurRadius: 4,
-                              offset:
-                                  Offset(0, 2), // changes position of shadow
+                              offset: Offset(0, 2),
                             ),
                           ],
                         ),
@@ -153,33 +147,30 @@ class _SettingsPageState extends State<SettingsPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16.0), // Add horizontal padding
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Row(
                                 children: [
                                   const Icon(Icons.logout,
-                                      color:
-                                          Color(0xFF333333)), // Icon for Logout
+                                      color: Color(0xFF333333)),
                                   const SizedBox(width: 10),
                                   const Text(
                                     'Logout',
                                     style: TextStyle(
-                                      color: Color(0xFF333333), // Text color
-                                      fontSize: 16, // Adjust font size
-                                      fontWeight: FontWeight.bold, // Bold font
+                                      color: Color(0xFF333333),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.only(
-                                  right: 16.0), // Padding for the arrow
+                              padding: const EdgeInsets.only(right: 16.0),
                               child: const Icon(
-                                Icons.arrow_forward_ios, // Arrow icon
+                                Icons.arrow_forward_ios,
                                 size: 16,
-                                color:
-                                    Color(0xFF333333), // Color for arrow icon
+                                color: Color(0xFF333333),
                               ),
                             ),
                           ],

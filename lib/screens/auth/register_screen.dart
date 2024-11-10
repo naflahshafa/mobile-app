@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -19,29 +20,63 @@ class _RegisterPageState extends State<RegisterPage> {
   final ValueNotifier<bool> passwordObscureNotifier = ValueNotifier(true);
   final ValueNotifier<bool> confirmPasswordObscureNotifier =
       ValueNotifier(true);
-  final ValueNotifier<bool> isFieldValidNotifier = ValueNotifier(false);
 
-  @override
-  void initState() {
-    super.initState();
-    nameController.addListener(_validateFields);
-    emailController.addListener(_validateFields);
-    passwordController.addListener(_validateFields);
-    confirmPasswordController.addListener(_validateFields);
+  final FirebaseAuth _auth = FirebaseAuth.instance; // Firebase Auth instance
+
+  Future<void> _signUp() async {
+    if (!_registerFormKey.currentState!.validate()) return;
+
+    try {
+      await _auth.createUserWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+
+      // Dialog sukses registrasi
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('Registration Successful'),
+            content: const Text(
+                'Your account has been created successfully. Please log in.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Tutup dialog
+                  context.go('/login'); // Arahkan ke halaman login
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    } on FirebaseAuthException catch (e) {
+      String message;
+      if (e.code == 'email-already-in-use') {
+        message = 'This email is already in use.';
+      } else {
+        message = e.message ?? 'An error occurred.';
+      }
+      _showErrorDialog(message);
+    }
   }
 
-  @override
-  void dispose() {
-    nameController.dispose();
-    emailController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  void _validateFields() {
-    final isValid = _registerFormKey.currentState?.validate() ?? false;
-    isFieldValidNotifier.value = isValid;
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Registration Failed'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -59,11 +94,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 Container(
                   height: 200,
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.blueAccent, Colors.lightBlue],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+                    color: Color(0xFF7B3A10),
                   ),
                   child: const Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -73,13 +104,14 @@ class _RegisterPageState extends State<RegisterPage> {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: Color(0xFFFFF1EC),
                         ),
                       ),
                       SizedBox(height: 6),
                       Text(
                         "Create Your Account",
-                        style: TextStyle(fontSize: 16, color: Colors.white70),
+                        style:
+                            TextStyle(fontSize: 16, color: Color(0xFFFFF1EC)),
                       ),
                     ],
                   ),
@@ -91,19 +123,19 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _buildTextField(
-                          controller: nameController,
-                          labelText: 'Name',
-                          keyboardType: TextInputType.name,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your name';
-                            } else if (value.length < 4) {
-                              return 'Name must be at least 4 characters long';
-                            }
-                            return null;
-                          },
-                        ),
+                        // _buildTextField(
+                        //   controller: nameController,
+                        //   labelText: 'Name',
+                        //   keyboardType: TextInputType.name,
+                        //   validator: (value) {
+                        //     if (value == null || value.isEmpty) {
+                        //       return 'Please enter your name';
+                        //     } else if (value.length < 4) {
+                        //       return 'Name must be at least 4 characters long';
+                        //     }
+                        //     return null;
+                        //   },
+                        // ),
                         const SizedBox(height: 16),
                         _buildTextField(
                           controller: emailController,
@@ -183,35 +215,21 @@ class _RegisterPageState extends State<RegisterPage> {
                           },
                         ),
                         const SizedBox(height: 24),
-                        ValueListenableBuilder<bool>(
-                          valueListenable: isFieldValidNotifier,
-                          builder: (context, isValid, child) {
-                            return ElevatedButton(
-                              onPressed: isValid
-                                  ? () {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        const SnackBar(
-                                          content:
-                                              Text('Registration Complete'),
-                                        ),
-                                      );
-                                      _registerFormKey.currentState?.reset();
-                                    }
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                foregroundColor: isValid
-                                    ? Colors.black87
-                                    : Colors.grey,
-                              ),
-                              child: const Text("Sign Up"),
-                            );
-                          },
+                        ElevatedButton(
+                          onPressed: _signUp,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF7B3A10),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: const Text(
+                            "Sign Up",
+                            style: TextStyle(
+                              color: Color(0xFFFFF1EC),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -227,7 +245,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                       child: const Text(
                         "Sign in",
-                        style: TextStyle(color: Colors.blue),
+                        style: TextStyle(color: Color(0xFF7B3A10)),
                       ),
                     ),
                   ],
@@ -256,14 +274,13 @@ class _RegisterPageState extends State<RegisterPage> {
       textInputAction: textInputAction,
       decoration: InputDecoration(
         labelText: labelText,
-        labelStyle: const TextStyle(color: Colors.blueAccent),
+        labelStyle: const TextStyle(color: Color(0xFF7B3A10)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
         ),
         suffixIcon: suffixIcon,
       ),
       validator: validator,
-      onChanged: (_) => _validateFields(),
     );
   }
 }

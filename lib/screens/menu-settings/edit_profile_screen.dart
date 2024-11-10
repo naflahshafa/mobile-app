@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../../components/bottom_navbar.dart';
 import '../../components/header.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -35,15 +34,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: const Color(0xFF7B3A10),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(95.0),
-        child: CustomHeader(title: 'Pet Notes'),
+        child: CustomHeader(title: 'Edit Profile'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Form(
-          key: _formKey, // Associate Form with GlobalKey
+          key: _formKey,
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -58,38 +57,31 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          'Edit Profile', // Title added here
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(
-                            height: 20), // Space between title and image
+                        const SizedBox(height: 10),
                         Stack(
                           alignment: Alignment.center,
                           children: [
                             CircleAvatar(
                               radius: 60,
-                              backgroundImage: (imageUrl != null &&
-                                      imageUrl!.isNotEmpty)
-                                  ? FileImage(File(
-                                      imageUrl!)) // Uploaded image if available
-                                  : const NetworkImage(
-                                      'https://ik.imagekit.io/ggslopv3t/cropped_image.png?updatedAt=1728912899260', // Default image
-                                    ),
+                              backgroundImage:
+                                  (imageUrl != null && imageUrl!.isNotEmpty)
+                                      ? FileImage(File(imageUrl!))
+                                      : const NetworkImage(
+                                          'https://ik.imagekit.io/ggslopv3t/cropped_image.png?updatedAt=1728912899260', // Default image
+                                        ),
                             ),
                             Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: CircleAvatar(
-                                backgroundColor: Colors.white,
+                              bottom: -7,
+                              right: -10,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.transparent,
+                                ),
                                 child: IconButton(
-                                  icon: const Icon(Icons.edit,
+                                  icon: const Icon(Icons.add_a_photo,
                                       color: Color(0xFF333333)),
-                                  onPressed:
-                                      _uploadImage, // Call function to upload image
+                                  onPressed: _uploadImage,
                                 ),
                               ),
                             ),
@@ -115,8 +107,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                               label: 'Cancel',
                               color: Colors.red,
                               onPressed: () {
-                                Navigator.pop(
-                                    context); // Go back without changes
+                                Navigator.pop(context);
                               },
                             ),
                             const SizedBox(width: 10),
@@ -147,14 +138,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index; // Update the current index
-          });
-        },
       ),
     );
   }

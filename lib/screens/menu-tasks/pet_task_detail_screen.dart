@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../components/bottom_navbar.dart';
+// import '../../components/bottom_navbar.dart';
 import '../../components/header.dart';
 import '../../data/dummy_data.dart';
 import 'edit_pet_task_screen.dart';
@@ -15,15 +15,15 @@ class PetTaskDetailPage extends StatefulWidget {
 }
 
 class _PetTaskDetailPageState extends State<PetTaskDetailPage> {
-  int currentIndex = 2;
+  // int currentIndex = 2;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F4F4),
+      backgroundColor: const Color(0xFF7B3A10),
       appBar: const PreferredSize(
         preferredSize: Size.fromHeight(95.0),
-        child: CustomHeader(title: 'Pet Notes'),
+        child: CustomHeader(title: 'Detail Pet Task'),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -31,10 +31,10 @@ class _PetTaskDetailPageState extends State<PetTaskDetailPage> {
           Container(
             margin: const EdgeInsets.all(10),
             child: TextButton.icon(
-              icon: const Icon(Icons.arrow_back, color: Color(0xFF333333)),
+              icon: const Icon(Icons.arrow_back, color: Color(0xFFFFF1EC)),
               label: const Text(
                 'Back',
-                style: TextStyle(color: Color(0xFF333333)),
+                style: TextStyle(color: Color(0xFFFFF1EC)),
               ),
               onPressed: () {
                 Navigator.of(context).pop();
@@ -57,7 +57,6 @@ class _PetTaskDetailPageState extends State<PetTaskDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 20),
-                      // Title Task
                       Text(
                         widget.task.title,
                         style: const TextStyle(
@@ -66,7 +65,6 @@ class _PetTaskDetailPageState extends State<PetTaskDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Pet's Name
                       Row(
                         children: [
                           const Icon(Icons.pets),
@@ -81,7 +79,6 @@ class _PetTaskDetailPageState extends State<PetTaskDetailPage> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      // Description Task
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -98,7 +95,6 @@ class _PetTaskDetailPageState extends State<PetTaskDetailPage> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      // Date and Time Task
                       Row(
                         children: [
                           const Icon(Icons.calendar_today, color: Colors.grey),
@@ -110,7 +106,6 @@ class _PetTaskDetailPageState extends State<PetTaskDetailPage> {
                         ],
                       ),
                       const SizedBox(height: 20),
-                      // Edit Task Button
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
@@ -122,7 +117,6 @@ class _PetTaskDetailPageState extends State<PetTaskDetailPage> {
                           ),
                         ),
                         onPressed: () {
-                          // Navigate to the EditPetTaskScreen
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -140,7 +134,6 @@ class _PetTaskDetailPageState extends State<PetTaskDetailPage> {
                         child: const Text('Edit Task'),
                       ),
                       const SizedBox(height: 10),
-                      // Delete Task Button
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
@@ -163,14 +156,6 @@ class _PetTaskDetailPageState extends State<PetTaskDetailPage> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index; // Update the current index when tapped
-          });
-        },
       ),
     );
   }
