@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../../components/header.dart';
+import '../../../data/models/pet_model.dart';
+import '../../../data/services/pet_service.dart';
 
 class AddPetScreen extends StatefulWidget {
   @override
@@ -11,13 +15,12 @@ class AddPetScreen extends StatefulWidget {
 }
 
 class _AddPetScreenState extends State<AddPetScreen> {
-  int currentIndex = 1;
   final _formKey = GlobalKey<FormState>();
   late String name;
-  DateTime? dateOfBirth;
-  String? sex;
+  DateTime? birthDate;
+  String? gender;
   late String breed;
-  late String category;
+  String? category;
   String? imageUrl;
 
   final ImagePicker _picker = ImagePicker();
@@ -44,7 +47,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
     );
     if (picked != null) {
       setState(() {
-        dateOfBirth = picked;
+        birthDate = picked;
       });
     }
   }
@@ -58,6 +61,52 @@ class _AddPetScreenState extends State<AddPetScreen> {
       setState(() {
         imageUrl = pickedFile.path;
       });
+    }
+  }
+
+  Future<void> _savePet() async {
+    if (_formKey.currentState!.validate()) {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        print("User not logged in");
+        return;
+      }
+
+      var uuid = Uuid();
+      String petId = uuid.v4();
+
+      await PetService().addPet(
+        id: petId,
+        name: name,
+        userUid: user.uid,
+        animalCategory: category!,
+        birthDate: birthDate!,
+        breed: breed,
+        gender: gender!,
+        imageProfile: imageUrl ?? '',
+      );
+
+      // context.go('/pets');
+
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Success'),
+            content: Text('Your pet has been successfully added!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  context.go('/pets'); // Navigate to the pets screen
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -95,11 +144,8 @@ class _AddPetScreenState extends State<AddPetScreen> {
                             icon: Icons.edit,
                             onChanged: (value) => name = value),
                         const SizedBox(height: 10),
-                        _buildDateField(
-                          'Date of Birth',
-                          dateOfBirth,
-                          () => _selectDate(context),
-                        ),
+                        _buildDateField('Birth Date', birthDate,
+                            () => _selectDate(context)),
                         const SizedBox(height: 2),
                         _buildGenderField(),
                         const SizedBox(height: 2),
@@ -108,10 +154,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
                             icon: Icons.pets,
                             onChanged: (value) => breed = value),
                         const SizedBox(height: 10),
-                        _buildTextField(
-                            label: 'Category',
-                            icon: Icons.category,
-                            onChanged: (value) => category = value),
+                        _buildCategoryField(), // Category dropdown
                         const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -136,11 +179,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
                             const SizedBox(width: 5),
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: () {
-                                  if (_formKey.currentState!.validate()) {
-                                    // Logika untuk menyimpan data pet
-                                  }
-                                },
+                                onPressed: _savePet,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blue,
                                   shape: RoundedRectangleBorder(
@@ -263,7 +302,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
             child: Text(
               date != null
                   ? DateFormat('yyyy-MM-dd').format(date)
-                  : 'Select date', // Placeholder jika tidak ada tanggal
+                  : 'Select date',
               style: TextStyle(
                 fontSize: 16,
                 color: date == null ? Color(0xFF333333) : Color(0xFF333333),
@@ -286,11 +325,11 @@ class _AddPetScreenState extends State<AddPetScreen> {
               Row(
                 children: [
                   Radio<String>(
-                    value: 'Male',
-                    groupValue: sex,
+                    value: 'male',
+                    groupValue: gender,
                     onChanged: (value) {
                       setState(() {
-                        sex = value;
+                        gender = value;
                       });
                     },
                   ),
@@ -300,11 +339,11 @@ class _AddPetScreenState extends State<AddPetScreen> {
               Row(
                 children: [
                   Radio<String>(
-                    value: 'Female',
-                    groupValue: sex,
+                    value: 'female',
+                    groupValue: gender,
                     onChanged: (value) {
                       setState(() {
-                        sex = value;
+                        gender = value;
                       });
                     },
                   ),
@@ -315,6 +354,47 @@ class _AddPetScreenState extends State<AddPetScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCategoryField() {
+    return DropdownButtonFormField<String>(
+      value: category,
+      decoration: InputDecoration(
+        labelText: 'Category',
+        prefixIcon: Icon(Icons.category),
+        border: OutlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      ),
+      hint: Text('Select category'),
+      onChanged: (String? newValue) {
+        setState(() {
+          category = newValue;
+        });
+      },
+      items: Pet.getAnimalCategories().map((category) {
+        return DropdownMenuItem(
+          value: category,
+          child: Text(category),
+        );
+      }).toList(),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please select a category';
+        }
+        return null;
+      },
     );
   }
 }

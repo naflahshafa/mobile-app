@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../../data/dummy_data.dart';
 import '../../components/header.dart';
 import 'notes/pet_notes_screen.dart';
+import 'vaccine/pet_vaccine_screen.dart';
 
 enum PetView { list, notes, vaccine }
 
@@ -19,7 +20,7 @@ class _PetPageState extends State<PetPage> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, // jumlah tab
+      length: 3, // jumlah tab
       child: Scaffold(
         backgroundColor: const Color(0xFF7B3A10),
         appBar: PreferredSize(
@@ -47,7 +48,7 @@ class _PetPageState extends State<PetPage> {
             tabs: const [
               Tab(text: 'List'),
               Tab(text: 'Notes'),
-              // Tab(text: 'Vaccine'),
+              Tab(text: 'Vaccine'),
             ],
           ),
         ),
@@ -56,7 +57,7 @@ class _PetPageState extends State<PetPage> {
             children: [
               _buildPetListView(),
               PetNotesScreen(),
-              // PetVaccineScreen(),
+              PetVaccineScreen(),
             ],
           ),
         ),
@@ -89,12 +90,16 @@ class _PetPageState extends State<PetPage> {
               children: [
                 Text(
                   'No pet data available',
-                  style: TextStyle(fontSize: 18, color: const Color(0xFFFFF1EC), fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 18,
+                      color: const Color(0xFFFFF1EC),
+                      fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 Text(
                   'Please add a pet first.',
-                  style: TextStyle(fontSize: 16, color: const Color(0xFFFFF1EC)),
+                  style:
+                      TextStyle(fontSize: 16, color: const Color(0xFFFFF1EC)),
                 ),
               ],
             ),
@@ -207,9 +212,7 @@ class _PetPageState extends State<PetPage> {
                   ),
                   Text(
                     pet.type,
-                    style:
-                        const TextStyle(
-                          fontSize: 12),
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ],
               ),

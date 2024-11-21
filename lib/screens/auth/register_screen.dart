@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../data/services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -11,7 +11,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final _registerFormKey = GlobalKey<FormState>();
-  final TextEditingController nameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -21,18 +21,16 @@ class _RegisterPageState extends State<RegisterPage> {
   final ValueNotifier<bool> confirmPasswordObscureNotifier =
       ValueNotifier(true);
 
-  final FirebaseAuth _auth = FirebaseAuth.instance; // Firebase Auth instance
-
   Future<void> _signUp() async {
     if (!_registerFormKey.currentState!.validate()) return;
 
     try {
-      await _auth.createUserWithEmailAndPassword(
+      await AuthService().signUp(
         email: emailController.text,
         password: passwordController.text,
+        username: usernameController.text,
       );
 
-      // Dialog sukses registrasi
       showDialog(
         context: context,
         builder: (context) {
@@ -44,7 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
               TextButton(
                 onPressed: () {
                   Navigator.pop(context); // Tutup dialog
-                  context.go('/login'); // Arahkan ke halaman login
+                  context.go('/login');
                 },
                 child: const Text('OK'),
               ),
@@ -52,14 +50,8 @@ class _RegisterPageState extends State<RegisterPage> {
           );
         },
       );
-    } on FirebaseAuthException catch (e) {
-      String message;
-      if (e.code == 'email-already-in-use') {
-        message = 'This email is already in use.';
-      } else {
-        message = e.message ?? 'An error occurred.';
-      }
-      _showErrorDialog(message);
+    } catch (e) {
+      _showErrorDialog(e.toString());
     }
   }
 
@@ -123,19 +115,19 @@ class _RegisterPageState extends State<RegisterPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // _buildTextField(
-                        //   controller: nameController,
-                        //   labelText: 'Name',
-                        //   keyboardType: TextInputType.name,
-                        //   validator: (value) {
-                        //     if (value == null || value.isEmpty) {
-                        //       return 'Please enter your name';
-                        //     } else if (value.length < 4) {
-                        //       return 'Name must be at least 4 characters long';
-                        //     }
-                        //     return null;
-                        //   },
-                        // ),
+                        _buildTextField(
+                          controller: usernameController,
+                          labelText: 'Username',
+                          keyboardType: TextInputType.text,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your username';
+                            } else if (value.length < 4) {
+                              return 'Username must be at least 4 characters long';
+                            }
+                            return null;
+                          },
+                        ),
                         const SizedBox(height: 16),
                         _buildTextField(
                           controller: emailController,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../data/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,24 +15,22 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool passwordObscure = true;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> _signIn() async {
     if (!_loginFormKey.currentState!.validate()) {
-      // If validation fails, stop the login process
+      // Jika validasi gagal, hentikan proses login
       return;
     }
     try {
-      await _auth.signInWithEmailAndPassword(
+      await AuthService().signIn(
         email: emailController.text,
         password: passwordController.text,
       );
-      // Navigate to the home page after successful login
+
       context.go('/home');
     } catch (e) {
       String errorMessage = 'An error occurred. Please try again.';
 
-      // Check for specific Firebase error codes
       if (e is FirebaseAuthException) {
         switch (e.code) {
           case 'user-not-found':
@@ -48,7 +47,6 @@ class _LoginPageState extends State<LoginPage> {
         }
       }
 
-      // Show the error message in a dialog
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -184,18 +182,6 @@ class _LoginPageState extends State<LoginPage> {
                             return null;
                           },
                         ),
-                        // Align(
-                        //   alignment: Alignment.centerRight,
-                        //   child: TextButton(
-                        //     onPressed: () {
-                        //       // Handle forgot password action
-                        //     },
-                        //     child: const Text(
-                        //       "Forgot Password?",
-                        //       style: TextStyle(color: Colors.blue),
-                        //     ),
-                        //   ),
-                        // ),
                         const SizedBox(height: 20),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(

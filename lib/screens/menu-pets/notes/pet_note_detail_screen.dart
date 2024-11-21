@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+// import 'package:go_router/go_router.dart';
+import 'edit_pet_note_screen.dart';
 import '../../../components/header.dart';
 import '../../../data/dummy_data.dart';
 
@@ -113,9 +114,24 @@ class _NoteDetailPageState extends State<NoteDetailPage> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
+                        // onPressed: () {
+                        //   context.go('/pets/noteDetail/editPetNote',
+                        //       extra: widget.note);
+                        // },
                         onPressed: () {
-                          context.go('/pets/noteDetail/editPetNote',
-                              extra: widget.note);
+                          // Navigate to the EditPetNoteScreen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditPetNoteScreen(
+                                note: widget.note,
+                              ),
+                            ),
+                          ).then((updatedNote) {
+                            if (updatedNote != null) {
+                              // Handle the updated note here if needed
+                            }
+                          });
                         },
                         child: const Text('Edit Note'),
                       ),

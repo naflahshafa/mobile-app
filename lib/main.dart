@@ -203,6 +203,8 @@ int _calculateCurrentIndex(String location) {
       return 2;
     case '/settings':
       return 3;
+    case '/settings/editProfile':
+      return 3;
     default:
       return 0;
   }

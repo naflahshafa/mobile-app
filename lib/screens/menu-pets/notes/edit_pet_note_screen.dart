@@ -69,7 +69,7 @@ class _EditPetNoteScreenState extends State<EditPetNoteScreen> {
                           label: 'Cancel',
                           color: Colors.red,
                           onPressed: () {
-                            Navigator.pop(context, null);
+                            Navigator.pop(context);
                           },
                         ),
                         const SizedBox(width: 10),
