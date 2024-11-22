@@ -3,7 +3,7 @@ import '../../../components/header.dart';
 import '../../../data/dummy_data.dart';
 
 class EditPetNoteScreen extends StatefulWidget {
-  final Note note;
+  final DummyNote note;
 
   const EditPetNoteScreen({super.key, required this.note});
 
@@ -80,7 +80,7 @@ class _EditPetNoteScreenState extends State<EditPetNoteScreen> {
                             if (_formKey.currentState!.validate()) {
                               Navigator.pop(
                                 context,
-                                Note(
+                                DummyNote(
                                   title: title,
                                   description: description,
                                   // Add other fields if needed

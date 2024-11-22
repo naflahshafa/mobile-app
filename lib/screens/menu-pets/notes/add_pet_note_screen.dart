@@ -77,7 +77,7 @@ class _AddPetNoteScreenState extends State<AddPetNoteScreen> {
                               // If form is valid, pop with new note data
                               Navigator.pop(
                                 context,
-                                Note(
+                                DummyNote(
                                   title: title,
                                   description: description,
                                   // Add other fields if needed

@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/pet_model.dart';
 import '../models/task_model.dart';
 
 class PetService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference _petCollection =
       FirebaseFirestore.instance.collection('pets');
   final CollectionReference _taskCollection =
@@ -10,24 +12,13 @@ class PetService {
 
   Future<Map<String, dynamic>> getPetsWithTasks(String userUid) async {
     try {
-      // print('getPetsWithTasks called with userUid: $userUid');
-
       QuerySnapshot petSnapshot =
           await _petCollection.where('user_uid', isEqualTo: userUid).get();
-
-      // if (petSnapshot.docs.isEmpty) {
-      //   print('No pets found for userUid: $userUid');
-      // } else {
-      //   print('Pets found: ${petSnapshot.docs.length}');
-      // }
 
       List<Map<String, dynamic>> petsList = [];
 
       for (var petDoc in petSnapshot.docs) {
-        // print('Pet Document Data: ${petDoc.data()}');
-
         Pet pet = Pet.fromMap(petDoc.data() as Map<String, dynamic>);
-        // print('Processing Pet: ${pet.name} (ID: ${pet.id})');
 
         String animalCategoryName =
             pet.animalCategory.isEmpty ? 'Unknown' : pet.animalCategory;
@@ -35,17 +26,9 @@ class PetService {
         QuerySnapshot taskSnapshot =
             await _taskCollection.where('pet_uid', isEqualTo: pet.id).get();
 
-        // if (taskSnapshot.docs.isEmpty) {
-        //   print('No tasks found for pet ID: ${pet.id}');
-        // } else {
-        //   print(
-        //       'Tasks found for pet ID: ${pet.id} (${taskSnapshot.docs.length} tasks)');
-        // }
-
         List<Task> tasks = taskSnapshot.docs.map((taskDoc) {
           var taskData = taskDoc.data() as Map<String, dynamic>;
           taskData['id'] = taskDoc.id;
-          // print('Task Data for pet ${pet.name}: $taskData');
 
           return Task.fromMap(taskData);
         }).toList();
@@ -83,6 +66,46 @@ class PetService {
     }
   }
 
+  Future<List<Pet>> getAllPetsByUserUid() async {
+    try {
+      User? currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        throw Exception("User is not logged in.");
+      }
+
+      QuerySnapshot petSnapshot = await _petCollection
+          .where('user_uid', isEqualTo: currentUser.uid)
+          .get();
+
+      return petSnapshot.docs.map((doc) {
+        var petData = doc.data() as Map<String, dynamic>;
+        petData['id'] = doc.id;
+        return Pet.fromMap(petData);
+      }).toList();
+    } catch (e) {
+      print('Error fetching pets for current user: $e');
+      return [];
+    }
+  }
+
+  Future<Pet?> getPetById(String petId) async {
+    try {
+      DocumentSnapshot petDoc = await _petCollection.doc(petId).get();
+
+      if (petDoc.exists) {
+        var petData = petDoc.data() as Map<String, dynamic>;
+        petData['id'] = petDoc.id;
+        return Pet.fromMap(petData);
+      } else {
+        print('Pet not found with ID: $petId');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching pet with ID $petId: $e');
+      return null;
+    }
+  }
+
   Future<void> addPet({
     required String id,
     required String userUid,
@@ -108,17 +131,29 @@ class PetService {
   Future<void> updatePet({
     required String id,
     String? name,
+    String? animalCategory,
     String? breed,
     String? gender,
     String? imageProfile,
+    DateTime? birthDate,
   }) async {
-    final Map<String, dynamic> data = {};
-    if (name != null) data['name'] = name;
-    if (breed != null) data['breed'] = breed;
-    if (gender != null) data['gender'] = gender;
-    if (imageProfile != null) data['image_profile'] = imageProfile;
+    try {
+      final Map<String, dynamic> data = {};
 
-    await _petCollection.doc(id).update(data);
+      if (name != null) data['name'] = name;
+      if (animalCategory != null) data['animal_category'] = animalCategory;
+      if (breed != null) data['breed'] = breed;
+      if (gender != null) data['gender'] = gender;
+      if (imageProfile != null) data['image_profile'] = imageProfile;
+      if (birthDate != null) data['birth_date'] = Timestamp.fromDate(birthDate);
+
+      await _petCollection.doc(id).update(data);
+
+      print('Pet updated successfully');
+    } catch (e) {
+      print('Error updating pet: $e');
+      rethrow;
+    }
   }
 
   Future<void> deletePet(String id) async {

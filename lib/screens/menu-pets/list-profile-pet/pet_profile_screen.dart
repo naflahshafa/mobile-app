@@ -1,35 +1,101 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../data/dummy_data.dart';
+import 'package:intl/intl.dart';
+import '../../../data/services/pet_service.dart';
+import '../../../data/models/pet_model.dart';
 
-class PetProfileScreen extends StatelessWidget {
-  final Pet pet;
+class PetProfileScreen extends StatefulWidget {
+  final String petId;
 
-  const PetProfileScreen({super.key, required this.pet});
+  const PetProfileScreen({super.key, required this.petId});
+
+  @override
+  State<PetProfileScreen> createState() => _PetProfileScreenState();
+}
+
+class _PetProfileScreenState extends State<PetProfileScreen> {
+  final PetService _petService = PetService();
+  Pet? pet;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPetDetails();
+  }
+
+  Future<void> _loadPetDetails() async {
+    try {
+      final loadedPet = await _petService.getPetById(widget.petId);
+      setState(() {
+        pet = loadedPet;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading pet details: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _deletePet() async {
+    try {
+      await _petService.deletePet(pet!.id);
+
+      _showDialog(context, 'Success', 'Pet deleted successfully!');
+    } catch (e) {
+      print('Error deleting pet: $e');
+
+      _showDialog(
+          context, 'Error', 'Failed to delete pet. Please try again later.');
+    }
+  }
+
+  void _showDialog(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                if (title == 'Success') {
+                  context.go('/pets');
+                }
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Scaffold(
+        appBar: _buildAppBar(context),
+        backgroundColor: const Color(0xFF7B3A10),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (pet == null) {
+      return Scaffold(
+        appBar: _buildAppBar(context),
+        backgroundColor: const Color(0xFF7B3A10),
+        body: const Center(child: Text('Pet not found.')),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF7B3A10),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFF7B3A10),
-        elevation: 0,
-        title: Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_back, color: Color(0xFFF4F4F4)),
-              onPressed: () {
-                context.go('/pets');
-              },
-            ),
-            const Text(
-              'Back',
-              style: TextStyle(color: Color(0xFFF4F4F4), fontSize: 16),
-            ),
-          ],
-        ),
-      ),
+      appBar: _buildAppBar(context),
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: SingleChildScrollView(
@@ -48,8 +114,8 @@ class PetProfileScreen extends StatelessWidget {
                     children: [
                       ClipOval(
                         child: Image.network(
-                          pet.imageUrl?.isNotEmpty == true
-                              ? pet.imageUrl!
+                          pet!.imageProfile.isNotEmpty
+                              ? pet!.imageProfile
                               : 'https://ik.imagekit.io/ggslopv3t/cropped_image.png?updatedAt=1728912899260',
                           width: 100,
                           height: 100,
@@ -68,15 +134,14 @@ class PetProfileScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Icon based on pet's sex
                           Icon(
-                            pet.sex == 'Male' ? Icons.male : Icons.female,
+                            pet!.gender == 'male' ? Icons.male : Icons.female,
                             size: 30,
                             color: Colors.brown,
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            pet.name,
+                            pet!.name,
                             style: const TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
@@ -85,10 +150,9 @@ class PetProfileScreen extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 8),
-                      _buildProfileDetail(
-                          'Date of Birth', pet.birthDate.toString()),
-                      _buildProfileDetail('Breed', pet.breed),
-                      _buildProfileDetail('Category', pet.type),
+                      _buildProfileDetail('Date of Birth', pet!.birthDate),
+                      _buildProfileDetail('Breed', pet!.breed),
+                      _buildProfileDetail('Category', pet!.animalCategory),
                       const SizedBox(height: 20),
                       Column(
                         children: [
@@ -97,11 +161,13 @@ class PetProfileScreen extends StatelessWidget {
                             color: Colors.blue,
                             onPressed: () {
                               context
-                                  .push('/pets/profile/editProfile', extra: pet)
+                                  .push('/pets/profile/${pet!.id}/editProfile',
+                                      extra: pet)
                                   .then((value) {
                                 if (value != null && value is Pet) {
-                                  // Update local pet with returned value
-                                  // You might use state management here to handle this globally
+                                  setState(() {
+                                    pet = value;
+                                  });
                                 }
                               });
                             },
@@ -111,7 +177,7 @@ class PetProfileScreen extends StatelessWidget {
                             label: 'Delete Pet',
                             color: Colors.red,
                             onPressed: () {
-                              // Implement delete functionality here
+                              _showConfirmationDialog(context);
                             },
                           ),
                         ],
@@ -127,7 +193,37 @@ class PetProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileDetail(String label, String value) {
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: const Color(0xFF7B3A10),
+      elevation: 0,
+      title: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, color: Color(0xFFF4F4F4)),
+            onPressed: () {
+              context.go('/pets');
+            },
+          ),
+          const Text(
+            'Back',
+            style: TextStyle(color: Color(0xFFF4F4F4), fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileDetail(String label, dynamic value) {
+    String displayValue;
+
+    if (value is DateTime) {
+      displayValue = DateFormat('yyyy-MM-dd').format(value);
+    } else {
+      displayValue = value.toString();
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.0),
       child: Row(
@@ -137,7 +233,7 @@ class PetProfileScreen extends StatelessWidget {
             label,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          Text(value),
+          Text(displayValue),
         ],
       ),
     );
@@ -164,6 +260,33 @@ class PetProfileScreen extends StatelessWidget {
           style: const TextStyle(color: Colors.white),
         ),
       ),
+    );
+  }
+
+  void _showConfirmationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Pet'),
+          content: const Text('Are you sure you want to delete this pet?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deletePet();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

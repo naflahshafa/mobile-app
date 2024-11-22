@@ -4,7 +4,7 @@ import '../../components/header.dart';
 import '../../data/dummy_data.dart';
 
 class EditPetTaskScreen extends StatefulWidget {
-  final Task task;
+  final DummyTask task;
   final String petName;
 
   const EditPetTaskScreen({required this.task, required this.petName, Key? key})

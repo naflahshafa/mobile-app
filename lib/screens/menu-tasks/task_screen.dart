@@ -18,11 +18,11 @@ class _TaskPageState extends State<TaskPage> {
   bool? showCompleted;
 
   // Filtered list of tasks based on selected day and status filter
-  List<Task> _getFilteredTasks() {
+  List<DummyTask> _getFilteredTasks() {
     String selectedDayString =
         '${_selectedDay.year}-${_selectedDay.month.toString().padLeft(2, '0')}-${_selectedDay.day.toString().padLeft(2, '0')}';
 
-    List<Task> tasksForDay = pets
+    List<DummyTask> tasksForDay = pets
         .expand((pet) => pet.tasks)
         .where((task) => task.time.startsWith(selectedDayString))
         .toList();
@@ -248,7 +248,7 @@ class _TaskPageState extends State<TaskPage> {
                   ? ListView.builder(
                       itemCount: _getFilteredTasks().length,
                       itemBuilder: (context, index) {
-                        Task task = _getFilteredTasks()[index];
+                        DummyTask task = _getFilteredTasks()[index];
                         String petName = pets
                             .firstWhere((pet) => pet.tasks.contains(task))
                             .name;
@@ -287,7 +287,7 @@ class _TaskPageState extends State<TaskPage> {
                               onSelected: (value) {
                                 if (value == 'view') {
                                   // Find the corresponding pet for the task
-                                  Pet pet = pets.firstWhere(
+                                  DummyPet pet = pets.firstWhere(
                                       (pet) => pet.tasks.contains(task));
 
                                   // Navigate to PetTaskDetailPage

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:io';
-import '../../../data/dummy_data.dart';
+import '../../../data/services/pet_service.dart';
+import '../../../data/models/pet_model.dart';
 
 class EditPetProfileScreen extends StatefulWidget {
   final Pet pet;
@@ -15,11 +17,11 @@ class EditPetProfileScreen extends StatefulWidget {
 class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
   final _formKey = GlobalKey<FormState>();
   late String name;
-  late String dateOfBirth;
-  late String sex;
+  late DateTime birthDate;
+  late String gender;
   late String breed;
-  late String category;
-  String? imageUrl;
+  late String animalCategory;
+  String? imageProfile;
 
   final ImagePicker _picker = ImagePicker();
 
@@ -27,11 +29,11 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
   void initState() {
     super.initState();
     name = widget.pet.name;
-    dateOfBirth = widget.pet.birthDate.toString();
-    sex = widget.pet.sex;
+    birthDate = widget.pet.birthDate;
+    gender = widget.pet.gender;
     breed = widget.pet.breed;
-    category = widget.pet.type;
-    imageUrl = widget.pet.imageUrl;
+    animalCategory = widget.pet.animalCategory;
+    imageProfile = widget.pet.imageProfile;
   }
 
   Future<void> _uploadImage() async {
@@ -41,7 +43,7 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
 
     if (pickedFile != null) {
       setState(() {
-        imageUrl = pickedFile.path;
+        imageProfile = pickedFile.path;
       });
     }
   }
@@ -49,13 +51,13 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.parse(dateOfBirth),
+      initialDate: birthDate,
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
     );
-    if (picked != null && picked != DateTime.parse(dateOfBirth)) {
+    if (picked != null) {
       setState(() {
-        dateOfBirth = picked.toIso8601String();
+        birthDate = picked;
       });
     }
   }
@@ -95,17 +97,14 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
                           children: [
                             CircleAvatar(
                               radius: 60,
-                              backgroundImage: (imageUrl != null &&
-                                      imageUrl!.isNotEmpty)
-                                  ? FileImage(File(
-                                      imageUrl!)) // Gambar yang diunggah jika ada
-                                  : (widget.pet.imageUrl != null &&
-                                          widget.pet.imageUrl!.isNotEmpty)
-                                      ? NetworkImage(widget
-                                          .pet.imageUrl!) // Gambar URL jika ada
-                                      : const NetworkImage(
-                                          'https://ik.imagekit.io/ggslopv3t/cropped_image.png?updatedAt=1728912899260', // Gambar default
-                                        ),
+                              backgroundImage: imageProfile != null &&
+                                      imageProfile!.isNotEmpty
+                                  ? FileImage(File(imageProfile!))
+                                  : NetworkImage(
+                                      widget.pet.imageProfile.isNotEmpty
+                                          ? widget.pet.imageProfile
+                                          : 'https://ik.imagekit.io/ggslopv3t/cropped_image.png?updatedAt=1728912899260',
+                                    ) as ImageProvider,
                             ),
                             Positioned(
                               bottom: -7,
@@ -140,9 +139,9 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
                             child: _buildTextField(
                               label: 'Date of Birth',
                               icon: Icons.calendar_today,
-                              onChanged: (value) => dateOfBirth = value,
-                              initialValue: dateOfBirth.substring(
-                                  0, 10), // Format tanggal
+                              initialValue:
+                                  birthDate.toLocal().toString().split(' ')[0],
+                              onChanged: (value) {}, // Format tanggal
                             ),
                           ),
                         ),
@@ -153,11 +152,11 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
                             Row(
                               children: [
                                 Radio<String>(
-                                  value: 'Male',
-                                  groupValue: sex,
+                                  value: 'male',
+                                  groupValue: gender,
                                   onChanged: (value) {
                                     setState(() {
-                                      sex = value!;
+                                      gender = value!;
                                     });
                                   },
                                 ),
@@ -167,11 +166,11 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
                             Row(
                               children: [
                                 Radio<String>(
-                                  value: 'Female',
-                                  groupValue: sex,
+                                  value: 'female',
+                                  groupValue: gender,
                                   onChanged: (value) {
                                     setState(() {
-                                      sex = value!;
+                                      gender = value!;
                                     });
                                   },
                                 ),
@@ -188,12 +187,24 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
                           initialValue: breed,
                         ),
                         const SizedBox(height: 10),
-                        _buildDropdownField(
-                          label: 'Category',
-                          icon: Icons.category,
-                          items: ['Cat', 'Dog', 'Bird', 'Rabbit', 'Other'],
-                          onChanged: (value) => category = value!,
-                          initialValue: category,
+                        DropdownButtonFormField<String>(
+                          value: animalCategory,
+                          decoration: const InputDecoration(
+                            labelText: 'Animal Category',
+                            prefixIcon: Icon(Icons.category),
+                            border: OutlineInputBorder(),
+                          ),
+                          items: Pet.getAnimalCategories()
+                              .map((category) => DropdownMenuItem(
+                                    value: category,
+                                    child: Text(category),
+                                  ))
+                              .toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              animalCategory = value!;
+                            });
+                          },
                         ),
                         const SizedBox(height: 20),
                         Row(
@@ -210,22 +221,20 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
                             _buildActionButton(
                               label: 'Update',
                               color: Colors.blue,
-                              onPressed: () {
+                              onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
-                                  // Jika form valid, pop dengan data yang diubah
-                                  Navigator.pop(
-                                    context,
-                                    Pet(
-                                      name: name,
-                                      birthDate: DateTime.parse(dateOfBirth),
-                                      sex: sex,
-                                      breed: breed,
-                                      type: category,
-                                      tasks: [],
-                                      notes: [],
-                                      imageUrl: imageUrl,
-                                    ),
+                                  final updatedPet = widget.pet.copyWith(
+                                    name: name,
+                                    birthDate: birthDate,
+                                    gender: gender,
+                                    breed: breed,
+                                    animalCategory: animalCategory,
+                                    imageProfile: imageProfile,
                                   );
+
+                                  await _updatePetInBackend(updatedPet);
+
+                                  Navigator.pop(context, updatedPet);
                                 }
                               },
                             ),
@@ -268,35 +277,6 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
     );
   }
 
-  Widget _buildDropdownField({
-    required String label,
-    required IconData icon,
-    required List<String> items,
-    required Function(String?) onChanged,
-    String? initialValue,
-  }) {
-    return DropdownButtonFormField<String>(
-      value: initialValue,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
-      items: items
-          .map((item) => DropdownMenuItem(value: item, child: Text(item)))
-          .toList(),
-      onChanged: onChanged,
-      validator: (value) {
-        if (value == null) {
-          return 'Please select $label';
-        }
-        return null;
-      },
-    );
-  }
-
   Widget _buildActionButton({
     required String label,
     required Color color,
@@ -317,6 +297,51 @@ class _EditPetProfileScreenState extends State<EditPetProfileScreen> {
           style: const TextStyle(color: Colors.white),
         ),
       ),
+    );
+  }
+
+  Future<void> _updatePetInBackend(Pet pet) async {
+    try {
+      await PetService().updatePet(
+        id: pet.id,
+        name: pet.name,
+        animalCategory: pet.animalCategory,
+        birthDate: pet.birthDate,
+        breed: pet.breed,
+        gender: pet.gender,
+        imageProfile: pet.imageProfile,
+      );
+
+      _showDialog(context, 'Success', 'Pet profile updated successfully!');
+
+      // Wait for the dialog to close before popping the screen
+      await Future.delayed(const Duration(seconds: 3));
+
+      GoRouter.of(context).pop();
+    } catch (e) {
+      print('Error updating pet: $e');
+      _showDialog(context, 'Error',
+          'Failed to update pet profile. Please try again later.');
+    }
+  }
+
+  void _showDialog(BuildContext context, String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

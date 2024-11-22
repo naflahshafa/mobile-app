@@ -57,6 +57,28 @@ class Pet {
     ];
   }
 
+  Pet copyWith({
+    String? id,
+    String? name,
+    String? userUid,
+    String? animalCategory,
+    DateTime? birthDate,
+    String? breed,
+    String? gender,
+    String? imageProfile,
+  }) {
+    return Pet(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      userUid: userUid ?? this.userUid,
+      animalCategory: animalCategory ?? this.animalCategory,
+      birthDate: birthDate ?? this.birthDate,
+      breed: breed ?? this.breed,
+      gender: gender ?? this.gender,
+      imageProfile: imageProfile ?? this.imageProfile,
+    );
+  }
+
   factory Pet.fromMap(Map<String, dynamic> data) {
     return Pet(
       id: data['id'],

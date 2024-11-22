@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pet_notes/data/models/pet_model.dart';
 import 'firebase_options.dart';
 import '../../data/dummy_data.dart';
 import 'screens/auth/login_screen.dart';
@@ -63,6 +64,22 @@ final GoRouter _router = GoRouter(
       path: '/register',
       builder: (context, state) => const RegisterPage(),
     ),
+    GoRoute(
+      path: '/pets/profile/:petId',
+      builder: (context, state) {
+        final petId = state.pathParameters['petId'];
+        return PetProfileScreen(petId: petId!);
+      },
+      routes: [
+        GoRoute(
+          path: 'editProfile',
+          builder: (context, state) {
+            final pet = state.extra as Pet;
+            return EditPetProfileScreen(pet: pet);
+          },
+        ),
+      ],
+    ),
 
     // Route navbar
     ShellRoute(
@@ -112,38 +129,15 @@ final GoRouter _router = GoRouter(
               builder: (context, state) => AddPetScreen(),
             ),
             GoRoute(
-              path: 'profile',
-              builder: (context, state) {
-                final pet = state.extra as Pet;
-                return PetProfileScreen(pet: pet);
-              },
-              routes: [
-                GoRoute(
-                  path: 'editProfile',
-                  builder: (context, state) {
-                    final pet = state.extra as Pet;
-                    return EditPetProfileScreen(pet: pet);
-                  },
-                ),
-              ],
-            ),
-            GoRoute(
               path: 'addPetNote',
               builder: (context, state) => const AddPetNoteScreen(),
             ),
             GoRoute(
               path: 'noteDetail',
               builder: (context, state) {
-                // Extract the 'extra' as a List<dynamic>
                 final extra = state.extra as List<dynamic>;
-                final note = extra[0] as Note; // The first item is a Note
-                final pet = extra[1] as Pet;
-
-                // if (note == null || pet == null) {
-                //   _showErrorDialog(
-                //       context, "Invalid data", "Note or Pet data is missing.");
-                //   return const SizedBox();
-                // }
+                final note = extra[0] as DummyNote;
+                final pet = extra[1] as DummyPet;
 
                 return NoteDetailPage(note: note, pet: pet);
               },
@@ -151,7 +145,7 @@ final GoRouter _router = GoRouter(
                 GoRoute(
                   path: 'editPetNote',
                   builder: (context, state) {
-                    final note = state.extra as Note;
+                    final note = state.extra as DummyNote;
                     return EditPetNoteScreen(note: note);
                   },
                 ),
@@ -189,10 +183,6 @@ int _calculateCurrentIndex(String location) {
       return 1;
     case '/pets/addPet':
       return 1;
-    case '/pets/profile':
-      return 1;
-    case '/pets/profile/editProfile':
-      return 1;
     case '/pets/addPetNote':
       return 1;
     case '/pets/noteDetail':
@@ -229,7 +219,6 @@ void _onNavBarTap(BuildContext context, int index) {
   }
 }
 
-// Helper function to show the error dialog
 void _showErrorDialog(BuildContext context, String title, String message) {
   showDialog(
     context: context,

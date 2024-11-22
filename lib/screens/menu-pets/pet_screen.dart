@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../data/dummy_data.dart';
 import '../../components/header.dart';
 import 'notes/pet_notes_screen.dart';
 import 'vaccine/pet_vaccine_screen.dart';
+import '../../data/services/pet_service.dart';
+import '../../data/models/pet_model.dart';
 
 enum PetView { list, notes, vaccine }
 
@@ -16,11 +17,35 @@ class PetPage extends StatefulWidget {
 
 class _PetPageState extends State<PetPage> {
   PetView currentView = PetView.list;
+  final PetService _petService = PetService();
+  List<Pet> pets = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPets();
+  }
+
+  Future<void> _loadPets() async {
+    try {
+      final loadedPets = await _petService.getAllPetsByUserUid();
+      setState(() {
+        pets = loadedPets;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading pets: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3, // jumlah tab
+      length: 3,
       child: Scaffold(
         backgroundColor: const Color(0xFF7B3A10),
         appBar: PreferredSize(
@@ -66,6 +91,10 @@ class _PetPageState extends State<PetPage> {
   }
 
   Widget _buildPetListView() {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     if (pets.isEmpty) {
       return _buildEmptyPetScreen();
     }
@@ -168,7 +197,7 @@ class _PetPageState extends State<PetPage> {
   Widget _buildPetCard(BuildContext context, Pet pet) {
     return GestureDetector(
       onTap: () {
-        context.go('/pets/profile', extra: pet);
+        context.go('/pets/profile/${pet.id}');
       },
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
@@ -186,8 +215,8 @@ class _PetPageState extends State<PetPage> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Image.network(
-                    pet.imageUrl?.isNotEmpty == true
-                        ? pet.imageUrl!
+                    pet.imageProfile.isNotEmpty
+                        ? pet.imageProfile
                         : 'https://ik.imagekit.io/ggslopv3t/cropped_image.png?updatedAt=1728912899260',
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
@@ -211,7 +240,7 @@ class _PetPageState extends State<PetPage> {
                     ),
                   ),
                   Text(
-                    pet.type,
+                    pet.animalCategory,
                     style: const TextStyle(fontSize: 12),
                   ),
                 ],

@@ -5,8 +5,8 @@ import '../../../components/header.dart';
 import '../../../data/dummy_data.dart';
 
 class NoteDetailPage extends StatefulWidget {
-  final Note note;
-  final Pet pet;
+  final DummyNote note;
+  final DummyPet pet;
 
   const NoteDetailPage({super.key, required this.note, required this.pet});
 

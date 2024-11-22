@@ -10,7 +10,7 @@ class PetNotesScreen extends StatefulWidget {
 }
 
 class _PetNotesScreenState extends State<PetNotesScreen> {
-  Pet? selectedPet; // Variable to hold the selected pet
+  DummyPet? selectedPet; // Variable to hold the selected pet
 
   @override
   Widget build(BuildContext context) {
@@ -89,18 +89,18 @@ class _PetNotesScreenState extends State<PetNotesScreen> {
         color: const Color(0xFFFFF1EC),
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: DropdownButton<Pet>(
+      child: DropdownButton<DummyPet>(
         value: selectedPet,
         hint: const Text("Select a Pet"),
         isExpanded: true,
         underline: Container(), // Remove the underline
-        items: pets.map<DropdownMenuItem<Pet>>((Pet pet) {
-          return DropdownMenuItem<Pet>(
+        items: pets.map<DropdownMenuItem<DummyPet>>((DummyPet pet) {
+          return DropdownMenuItem<DummyPet>(
             value: pet,
             child: Text(pet.name),
           );
         }).toList(),
-        onChanged: (Pet? newPet) {
+        onChanged: (DummyPet? newPet) {
           setState(() {
             selectedPet = newPet;
           });
@@ -109,7 +109,7 @@ class _PetNotesScreenState extends State<PetNotesScreen> {
     );
   }
 
-  Widget _buildNotesListView(Pet pet) {
+  Widget _buildNotesListView(DummyPet pet) {
     if (pet.notes.isEmpty) {
       return _buildEmptyNotesMessage();
     }
@@ -131,7 +131,7 @@ class _PetNotesScreenState extends State<PetNotesScreen> {
     );
   }
 
-  Widget _buildNoteCard(BuildContext context, Note note) {
+  Widget _buildNoteCard(BuildContext context, DummyNote note) {
     return Card(
       elevation: 4.0,
       margin: const EdgeInsets.symmetric(vertical: 6.0),

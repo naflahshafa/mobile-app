@@ -1,12 +1,10 @@
 class UserModel {
-  final String id;
   final String uid;
   final String email;
   final String username;
   final String imageProfile;
 
   UserModel({
-    required this.id,
     required this.uid,
     required this.email,
     required this.username,
@@ -14,8 +12,8 @@ class UserModel {
   });
 
   factory UserModel.fromMap(Map<String, dynamic> data) {
+    // print('Raw userdata from Firestore: $data');
     return UserModel(
-      id: data['id'],
       uid: data['uid'],
       email: data['email'],
       username: data['username'],
@@ -25,7 +23,6 @@ class UserModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
       'uid': uid,
       'email': email,
       'username': username,

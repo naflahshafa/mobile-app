@@ -5,8 +5,8 @@ import '../../data/dummy_data.dart';
 import 'edit_pet_task_screen.dart';
 
 class PetTaskDetailPage extends StatefulWidget {
-  final Task task;
-  final Pet pet;
+  final DummyTask task;
+  final DummyPet pet;
 
   const PetTaskDetailPage({super.key, required this.task, required this.pet});
 
