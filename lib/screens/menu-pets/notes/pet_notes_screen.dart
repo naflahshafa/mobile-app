@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../data/dummy_data.dart';
+import '../../../data/services/pet_service.dart';
+import '../../../data/models/pet_model.dart';
+import '../../../data/models/note_model.dart';
 
 class PetNotesScreen extends StatefulWidget {
   const PetNotesScreen({super.key});
@@ -10,7 +12,48 @@ class PetNotesScreen extends StatefulWidget {
 }
 
 class _PetNotesScreenState extends State<PetNotesScreen> {
-  DummyPet? selectedPet; // Variable to hold the selected pet
+  final PetService _petService = PetService();
+  List<Map<String, dynamic>> petsAndNotes = [];
+  Pet? selectedPet;
+  bool isLoading = true;
+  bool isFirstLoad = true; // Flag untuk kontrol loading saat pertama kali
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPetsWithNotes();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!isFirstLoad) {
+      _fetchPetsWithNotes(); // Muat ulang data saat screen muncul kembali
+    }
+    isFirstLoad = false; // Ubah flag setelah load pertama selesai
+  }
+
+  Future<void> _fetchPetsWithNotes() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final data = await _petService.getPetsWithNotesByUserUid();
+      // print('Pets and Notes Data (pet notes screen): $data');
+      setState(() {
+        petsAndNotes = data;
+        isLoading = false;
+      });
+
+      // print(
+      //     'Updated pets and notes in state (pet notes screen): $petsAndNotes');
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print('Error fetching pets and notes: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +67,13 @@ class _PetNotesScreenState extends State<PetNotesScreen> {
             const SizedBox(height: 5),
             _buildHeader(context),
             const SizedBox(height: 10),
-            _buildPetSelectionDropdown(),
+            isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : _buildPetSelectionDropdown(),
             const SizedBox(height: 10),
-            if (selectedPet != null)
+            if (!isLoading && selectedPet != null)
               Expanded(
                 child: _buildNotesListView(selectedPet!),
               ),
@@ -44,14 +91,14 @@ class _PetNotesScreenState extends State<PetNotesScreen> {
         children: [
           Row(
             children: const [
-              Icon(Icons.notes, size: 30, color: const Color(0xFFFFF1EC)),
+              Icon(Icons.notes, size: 30, color: Color(0xFFFFF1EC)),
               SizedBox(width: 10),
               Text(
                 "Pet Notes",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFFFFF1EC),
+                  color: Color(0xFFFFF1EC),
                 ),
               ),
             ],
@@ -89,18 +136,18 @@ class _PetNotesScreenState extends State<PetNotesScreen> {
         color: const Color(0xFFFFF1EC),
         borderRadius: BorderRadius.circular(8.0),
       ),
-      child: DropdownButton<DummyPet>(
+      child: DropdownButton<Pet>(
         value: selectedPet,
         hint: const Text("Select a Pet"),
         isExpanded: true,
-        underline: Container(), // Remove the underline
-        items: pets.map<DropdownMenuItem<DummyPet>>((DummyPet pet) {
-          return DropdownMenuItem<DummyPet>(
-            value: pet,
-            child: Text(pet.name),
+        underline: Container(),
+        items: petsAndNotes.map<DropdownMenuItem<Pet>>((entry) {
+          return DropdownMenuItem<Pet>(
+            value: entry['pet'] as Pet,
+            child: Text(entry['pet'].name),
           );
         }).toList(),
-        onChanged: (DummyPet? newPet) {
+        onChanged: (Pet? newPet) {
           setState(() {
             selectedPet = newPet;
           });
@@ -109,15 +156,19 @@ class _PetNotesScreenState extends State<PetNotesScreen> {
     );
   }
 
-  Widget _buildNotesListView(DummyPet pet) {
-    if (pet.notes.isEmpty) {
+  Widget _buildNotesListView(Pet pet) {
+    final notes =
+        petsAndNotes.firstWhere((entry) => entry['pet'].id == pet.id)['notes']
+            as List<Note>;
+
+    if (notes.isEmpty) {
       return _buildEmptyNotesMessage();
     }
 
     return ListView.builder(
-      itemCount: pet.notes.length,
+      itemCount: notes.length,
       itemBuilder: (context, index) {
-        return _buildNoteCard(context, pet.notes[index]);
+        return _buildNoteCard(context, notes[index]);
       },
     );
   }
@@ -131,7 +182,7 @@ class _PetNotesScreenState extends State<PetNotesScreen> {
     );
   }
 
-  Widget _buildNoteCard(BuildContext context, DummyNote note) {
+  Widget _buildNoteCard(BuildContext context, Note note) {
     return Card(
       elevation: 4.0,
       margin: const EdgeInsets.symmetric(vertical: 6.0),
@@ -145,10 +196,17 @@ class _PetNotesScreenState extends State<PetNotesScreen> {
               subtitle: _buildNoteDescription(note.description),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
-                context.go(
-                  '/pets/noteDetail',
-                  extra: [note, selectedPet],
-                );
+                if (selectedPet != null) {
+                  // print(
+                  //     'Navigating to NoteDetailPage with Note ID: ${note.id}, Pet UID: ${selectedPet!.id}');
+                  context.go(
+                    '/pets/noteDetail/${note.id}/${selectedPet!.id}',
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Pet not selected")),
+                  );
+                }
               },
             ),
           ],

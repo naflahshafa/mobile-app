@@ -3,7 +3,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pet_notes/data/models/pet_model.dart';
 import 'firebase_options.dart';
-import '../../data/dummy_data.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/auth/welcome_page.dart';
@@ -65,6 +64,10 @@ final GoRouter _router = GoRouter(
       builder: (context, state) => const RegisterPage(),
     ),
     GoRoute(
+      path: '/pets/addPet',
+      builder: (context, state) => AddPetScreen(),
+    ),
+    GoRoute(
       path: '/pets/profile/:petId',
       builder: (context, state) {
         final petId = state.pathParameters['petId'];
@@ -76,6 +79,28 @@ final GoRouter _router = GoRouter(
           builder: (context, state) {
             final pet = state.extra as Pet;
             return EditPetProfileScreen(pet: pet);
+          },
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/pets/addPetNote',
+      builder: (context, state) => const AddPetNoteScreen(),
+    ),
+    GoRoute(
+      path: '/pets/noteDetail/:noteId/:petUid',
+      builder: (context, state) {
+        final noteId = state.pathParameters['noteId']!;
+        final petUid = state.pathParameters['petUid']!;
+        return NoteDetailPage(noteId: noteId, petUid: petUid);
+      },
+      routes: [
+        GoRoute(
+          path: 'editPetNote',
+          builder: (context, state) {
+            final noteId = state.pathParameters['noteId']!;
+            final petUid = state.pathParameters['petUid']!;
+            return EditPetNoteScreen(noteId: noteId, petUid: petUid);
           },
         ),
       ],
@@ -122,35 +147,14 @@ final GoRouter _router = GoRouter(
         ),
         GoRoute(
           path: '/pets',
-          builder: (context, state) => const PetPage(),
+          builder: (context, state) {
+            final tabIndex = state.extra != null
+                ? (state.extra as Map<String, dynamic>)['tabIndex'] ?? 0
+                : 0;
+            return PetPage(initialTabIndex: tabIndex);
+          },
           routes: [
-            GoRoute(
-              path: 'addPet',
-              builder: (context, state) => AddPetScreen(),
-            ),
-            GoRoute(
-              path: 'addPetNote',
-              builder: (context, state) => const AddPetNoteScreen(),
-            ),
-            GoRoute(
-              path: 'noteDetail',
-              builder: (context, state) {
-                final extra = state.extra as List<dynamic>;
-                final note = extra[0] as DummyNote;
-                final pet = extra[1] as DummyPet;
-
-                return NoteDetailPage(note: note, pet: pet);
-              },
-              routes: [
-                GoRoute(
-                  path: 'editPetNote',
-                  builder: (context, state) {
-                    final note = state.extra as DummyNote;
-                    return EditPetNoteScreen(note: note);
-                  },
-                ),
-              ],
-            ),
+            // if needed
           ],
         ),
         GoRoute(
@@ -181,14 +185,6 @@ int _calculateCurrentIndex(String location) {
       return 0;
     case '/pets':
       return 1;
-    case '/pets/addPet':
-      return 1;
-    case '/pets/addPetNote':
-      return 1;
-    case '/pets/noteDetail':
-      return 1;
-    case '/pets/noteDetatil/editPetNote':
-      return 1;
     case '/tasks':
       return 2;
     case '/settings':
@@ -217,24 +213,4 @@ void _onNavBarTap(BuildContext context, int index) {
     default:
       break;
   }
-}
-
-void _showErrorDialog(BuildContext context, String title, String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text("OK"),
-          ),
-        ],
-      );
-    },
-  );
 }

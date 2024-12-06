@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../data/dummy_data.dart';
 import '../pet_screen.dart';
-import '../notes/pet_note_detail_screen.dart';
+// import '../notes/pet_note_detail_screen.dart';
 import '../notes/add_pet_note_screen.dart';
 
 class PetVaccineScreen extends StatefulWidget {
@@ -164,12 +164,12 @@ class _PetVaccineScreenState extends State<PetVaccineScreen> {
               subtitle: _buildNoteDescription(note.description),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => NoteDetailPage(
-                    note: note,
-                    pet: selectedPet!, // Send selected pet
-                  ),
-                ));
+                // Navigator.of(context).push(MaterialPageRoute(
+                //   builder: (context) => NoteDetailPage(
+                //     note: note,
+                //     pet: selectedPet!, // Send selected pet
+                //   ),
+                // ));
               },
             ),
           ],

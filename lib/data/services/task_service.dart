@@ -1,8 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/task_model.dart';
 
 class TaskService {
-  final CollectionReference _collection =
+  final CollectionReference _taskCollection =
       FirebaseFirestore.instance.collection('tasks');
+
+  Future<List<Task>> getTasksByPetUid(String petUid) async {
+    try {
+      final taskSnapshot =
+          await _taskCollection.where('pet_uid', isEqualTo: petUid).get();
+
+      return taskSnapshot.docs.map((taskDoc) {
+        var taskData = taskDoc.data() as Map<String, dynamic>;
+        taskData['id'] = taskDoc.id; // Add ID manually
+        return Task.fromMap(taskData);
+      }).toList();
+    } catch (e) {
+      throw Exception('Failed to fetch tasks for pet: $e');
+    }
+  }
 
   Future<void> addTask({
     required String id,
@@ -12,7 +28,7 @@ class TaskService {
     required DateTime dueDate,
     required bool isCompleted,
   }) async {
-    await _collection.doc(id).set({
+    await _taskCollection.doc(id).set({
       'id': id,
       'pet_uid': petUid,
       'title': title,
@@ -33,18 +49,18 @@ class TaskService {
     if (description != null) data['description'] = description;
     if (isCompleted != null) data['isCompleted'] = isCompleted;
 
-    await _collection.doc(id).update(data);
+    await _taskCollection.doc(id).update(data);
   }
 
   Future<void> deleteTask(String id) async {
-    await _collection.doc(id).delete();
+    await _taskCollection.doc(id).delete();
   }
 
   Future<DocumentSnapshot> getTask(String id) async {
-    return await _collection.doc(id).get();
+    return await _taskCollection.doc(id).get();
   }
 
   Future<QuerySnapshot> getAllTasks() async {
-    return await _collection.get();
+    return await _taskCollection.get();
   }
 }

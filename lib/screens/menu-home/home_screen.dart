@@ -146,33 +146,42 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildLoadingIndicator() {
-    return Center(
-      child: CircularProgressIndicator(),
+    return Container(
+      color: const Color(0xFF7B3A10),
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 
   Widget _buildEmptyPetScreen(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'No pet available',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Please add a pet first.',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              context.go('/pets/addPet');
-            },
-            child: Text('Add Pet'),
-          ),
-        ],
+    return Container(
+      color: const Color(0xFF7B3A10),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'No pet available',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFFFFF1EC)),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Please add a pet first.',
+              style: TextStyle(fontSize: 16, color: const Color(0xFFFFF1EC)),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                context.go('/pets/addPet');
+              },
+              child: Text('Add Pet'),
+            ),
+          ],
+        ),
       ),
     );
   }

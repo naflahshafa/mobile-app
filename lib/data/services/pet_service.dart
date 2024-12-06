@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/pet_model.dart';
-import '../models/task_model.dart';
+import '../services/note_service.dart';
+import '../services/task_service.dart';
 
 class PetService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference _petCollection =
       FirebaseFirestore.instance.collection('pets');
-  final CollectionReference _taskCollection =
-      FirebaseFirestore.instance.collection('tasks');
+  final NoteService _noteService = NoteService();
+  final TaskService _taskService = TaskService();
 
   Future<Map<String, dynamic>> getPetsWithTasks(String userUid) async {
     try {
@@ -23,15 +24,7 @@ class PetService {
         String animalCategoryName =
             pet.animalCategory.isEmpty ? 'Unknown' : pet.animalCategory;
 
-        QuerySnapshot taskSnapshot =
-            await _taskCollection.where('pet_uid', isEqualTo: pet.id).get();
-
-        List<Task> tasks = taskSnapshot.docs.map((taskDoc) {
-          var taskData = taskDoc.data() as Map<String, dynamic>;
-          taskData['id'] = taskDoc.id;
-
-          return Task.fromMap(taskData);
-        }).toList();
+        final tasks = await _taskService.getTasksByPetUid(pet.id);
 
         var petData = {
           'name': pet.name,
@@ -49,20 +42,14 @@ class PetService {
         petsList.add(petData);
       }
 
-      // print('PetsList length after processing: ${petsList.length}');
-      // if (petsList.isNotEmpty) {
-      //   print('Complete Pet List: $petsList');
-      // } else {
-      //   print('PetsList is empty.');
-      // }
-
+      // print('Pets List: $petsList');
+      
       return {
         'user_uid': userUid,
         'pets': petsList,
       };
     } catch (e) {
-      print('Error fetching pets with tasks: $e');
-      return {'user_uid': userUid, 'pets': []};
+      throw Exception('Error fetching pets with tasks: $e');
     }
   }
 
@@ -103,6 +90,43 @@ class PetService {
     } catch (e) {
       print('Error fetching pet with ID $petId: $e');
       return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPetsWithNotesByUserUid() async {
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        throw Exception('User not logged in');
+      }
+
+      final userUid = currentUser.uid;
+      // print('Fetching pets and notes for user (pet service): $userUid');
+
+      final petSnapshot =
+          await _petCollection.where('user_uid', isEqualTo: userUid).get();
+
+      List<Map<String, dynamic>> petsAndNotes = [];
+
+      for (var petDoc in petSnapshot.docs) {
+        final pet = Pet.fromMap(petDoc.data() as Map<String, dynamic>);
+        // print('(pet service) Processing pet: ${pet.id}, name: ${pet.name}');
+
+        final notes = await _noteService.getNotesByPetUid(pet.id);
+
+        // print('Notes for pet ${pet.name}: $notes');
+
+        petsAndNotes.add({
+          'pet': pet,
+          'notes': notes,
+        });
+      }
+
+      // print('Fetched pets and notes: $petsAndNotes');
+
+      return petsAndNotes;
+    } catch (e) {
+      throw Exception('Failed to load pets and notes: $e');
     }
   }
 
