@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import '../../components/header.dart';
-import '../../data/dummy_data.dart';
+import '../../../data/models/pet_model.dart';
+import '../../../data/services/pet_service.dart';
+import '../../../data/services/task_service.dart';
 
 class AddPetTaskScreen extends StatefulWidget {
   const AddPetTaskScreen({super.key});
@@ -12,7 +15,8 @@ class AddPetTaskScreen extends StatefulWidget {
 
 class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
   final _formKey = GlobalKey<FormState>();
-  late String selectedPet;
+  String? selectedPetUid;
+  List<Pet> pets = [];
   late String title;
   late String description;
   DateTime? dueDate;
@@ -20,35 +24,91 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
   @override
   void initState() {
     super.initState();
-    selectedPet = pets.isNotEmpty ? pets[0].name : '';
     title = '';
     description = '';
+    _fetchPets();
+  }
+
+  Future<void> _fetchPets() async {
+    List<Pet> fetchedPets = await PetService().getAllPetsByUserUid();
+    setState(() {
+      pets = fetchedPets;
+      if (pets.isNotEmpty) {
+        selectedPetUid = pets.first.id;
+      }
+    });
   }
 
   Future<void> _selectDueDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: dueDate ?? DateTime.now(),
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.brown,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-            dialogBackgroundColor: Colors.white,
-          ),
-          child: child!,
-        );
-      },
     );
-    if (picked != null) {
-      setState(() {
-        dueDate = picked;
-      });
+    if (pickedDate != null) {
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(dueDate ?? DateTime.now()),
+      );
+      if (pickedTime != null) {
+        setState(() {
+          dueDate = DateTime(
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        });
+      }
+    }
+  }
+
+  Future<void> _saveTask() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await TaskService().addTask(
+          petUid: selectedPetUid!,
+          title: title,
+          description: description,
+          dueDate: dueDate!,
+          isCompleted: false,
+        );
+
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Success'),
+            content: const Text('Task has been added successfully.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  context.go('/tasks');
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Error'),
+            content: Text('Failed to save task: $e'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 
@@ -76,18 +136,28 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // const Text(
-                    //   'Add Pet Task',
-                    //   style: TextStyle(
-                    //     fontSize: 20,
-                    //     fontWeight: FontWeight.bold,
-                    //   ),
-                    // ),
-                    const SizedBox(height: 5),
-                    _buildPetDropdown(),
+                    pets.isNotEmpty
+                        ? _buildDropdownField(
+                            label: 'Pet',
+                            icon: Icons.pets,
+                            value: selectedPetUid,
+                            items: pets.map((pet) {
+                              return DropdownMenuItem<String>(
+                                value: pet.id,
+                                child: Text(pet.name),
+                              );
+                            }).toList(),
+                            onChanged: (newPetUid) {
+                              setState(() {
+                                selectedPetUid = newPetUid!;
+                              });
+                            },
+                            placeholder: 'Select a pet',
+                          )
+                        : const CircularProgressIndicator(),
                     const SizedBox(height: 10),
                     _buildDateField(
-                      'Due Date',
+                      'Due Date & Time',
                       dueDate,
                       () => _selectDueDate(context),
                     ),
@@ -114,29 +184,14 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
                           label: 'Cancel',
                           color: Colors.red,
                           onPressed: () {
-                            Navigator.pop(context);
+                            context.go('/tasks');
                           },
                         ),
                         const SizedBox(width: 10),
                         _buildActionButton(
                           label: 'Save',
                           color: Colors.blue,
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              Navigator.pop(
-                                context,
-                                {
-                                  'pet': selectedPet,
-                                  'dueDate': dueDate != null
-                                      ? DateFormat('yyyy-MM-dd')
-                                          .format(dueDate!)
-                                      : '',
-                                  'title': title,
-                                  'description': description,
-                                },
-                              );
-                            }
-                          },
+                          onPressed: _saveTask,
                         ),
                       ],
                     ),
@@ -150,39 +205,50 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
     );
   }
 
-  Widget _buildPetDropdown() {
+  Widget _buildDropdownField({
+    required String label,
+    required IconData icon,
+    required String? value,
+    required List<DropdownMenuItem<String>> items,
+    required Function(String?) onChanged,
+    required String placeholder,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
-          children: const [
-            Icon(Icons.pets),
-            SizedBox(width: 8),
-            Text(
-              'Pet',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          children: [
+            Icon(icon),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: selectedPet,
-          items: pets.map((pet) {
-            return DropdownMenuItem<String>(
-              value: pet.name,
-              child: Text(pet.name),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setState(() {
-              selectedPet = value!;
-            });
-          },
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8.0),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8.0),
+            border: Border.all(
+              color: Colors.grey.shade400,
             ),
-            hintText: 'Select a pet',
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: value,
+              hint: Text(placeholder),
+              onChanged: onChanged,
+              underline: const SizedBox(),
+              items: items,
+            ),
           ),
         ),
       ],
@@ -198,7 +264,7 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
             Icon(Icons.calendar_today),
             SizedBox(width: 8),
             Text(
-              'Due Date',
+              'Due Date & Time',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ],
@@ -215,8 +281,8 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
             ),
             child: Text(
               date != null
-                  ? DateFormat('yyyy-MM-dd').format(date)
-                  : 'Select date',
+                  ? DateFormat('yyyy-MM-dd HH:mm').format(date)
+                  : 'Select date and time',
               style: TextStyle(
                 fontSize: 16,
                 color: date == null ? Colors.grey[600] : Colors.black,
@@ -234,7 +300,7 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
     required Function(String) onChanged,
     String? initialValue,
     int maxLines = 1,
-    String? hintText, // Added hintText parameter
+    String? hintText,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +328,7 @@ class _AddPetTaskScreenState extends State<AddPetTaskScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
             ),
-            hintText: hintText, // Set the hintText
+            hintText: hintText,
           ),
           onChanged: onChanged,
           validator: (value) {

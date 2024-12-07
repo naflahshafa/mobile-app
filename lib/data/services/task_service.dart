@@ -21,15 +21,16 @@ class TaskService {
   }
 
   Future<void> addTask({
-    required String id,
     required String petUid,
     required String title,
     required String description,
     required DateTime dueDate,
     required bool isCompleted,
   }) async {
-    await _taskCollection.doc(id).set({
-      'id': id,
+    final docRef = _taskCollection.doc();
+
+    await docRef.set({
+      'id': docRef.id,
       'pet_uid': petUid,
       'title': title,
       'description': description,

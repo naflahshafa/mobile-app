@@ -15,6 +15,7 @@ import 'screens/menu-pets/notes/add_pet_note_screen.dart';
 import 'screens/menu-pets/notes/pet_note_detail_screen.dart';
 import 'screens/menu-pets/notes/edit_pet_note_screen.dart';
 import 'screens/menu-tasks/task_screen.dart';
+import 'screens/menu-tasks/add_pet_task_screen.dart';
 import 'screens/menu-settings/settings_screen.dart';
 import 'screens/menu-settings/edit_profile_screen.dart';
 
@@ -104,6 +105,10 @@ final GoRouter _router = GoRouter(
           },
         ),
       ],
+    ),
+    GoRoute(
+      path: '/tasks/addPetTask',
+      builder: (context, state) => const AddPetTaskScreen(),
     ),
 
     // Route navbar

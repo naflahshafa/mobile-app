@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../components/header.dart';
-import '../../data/dummy_data.dart';
-import 'add_pet_task_screen.dart';
-import 'pet_task_detail_screen.dart';
+import '../../../data/services/pet_service.dart';
+import '../../../data/services/task_service.dart';
 
 class TaskPage extends StatefulWidget {
   const TaskPage({super.key});
@@ -13,26 +15,78 @@ class TaskPage extends StatefulWidget {
 }
 
 class _TaskPageState extends State<TaskPage> {
+  final PetService _petService = PetService();
+  final TaskService _taskService = TaskService();
+
   DateTime _selectedDay = DateTime.now();
   CalendarFormat _calendarFormat = CalendarFormat.month;
   bool? showCompleted;
+  Future<Map<String, dynamic>>? _petsWithTasksFuture;
 
-  // Filtered list of tasks based on selected day and status filter
-  List<DummyTask> _getFilteredTasks() {
+  @override
+  void initState() {
+    super.initState();
+    _loadPetsData();
+  }
+
+  void _loadPetsData() {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      setState(() {
+        _petsWithTasksFuture = _petService.getPetsWithTasks(user.uid);
+      });
+    } else {
+      print('User is not logged in or UID is empty');
+    }
+  }
+
+  List<Map<String, dynamic>> _getFilteredTasks(
+      List<Map<String, dynamic>> tasks) {
     String selectedDayString =
         '${_selectedDay.year}-${_selectedDay.month.toString().padLeft(2, '0')}-${_selectedDay.day.toString().padLeft(2, '0')}';
 
-    List<DummyTask> tasksForDay = pets
-        .expand((pet) => pet.tasks)
-        .where((task) => task.time.startsWith(selectedDayString))
+    List<Map<String, dynamic>> tasksForDay = tasks
+        .where((task) => task['due_date'].startsWith(selectedDayString))
         .toList();
 
     if (showCompleted == true) {
-      return tasksForDay.where((task) => task.status).toList();
+      return tasksForDay.where((task) => task['isCompleted']).toList();
     } else if (showCompleted == false) {
-      return tasksForDay.where((task) => !task.status).toList();
+      return tasksForDay.where((task) => !task['isCompleted']).toList();
     }
     return tasksForDay;
+  }
+
+  String _formatDueDate(String? dueDateString) {
+    String dueDate = 'No due date';
+    if (dueDateString != null) {
+      try {
+        DateTime dueDateTime = DateTime.parse(dueDateString);
+        dueDate = DateFormat('yyyy-MM-dd – hh:mm a').format(dueDateTime);
+      } catch (e) {
+        print('Error parsing due_date: $e');
+      }
+    }
+    return dueDate;
+  }
+
+  Future<void> _updateTaskStatus(String taskId, bool isCompleted) async {
+    try {
+      await _taskService.updateTask(id: taskId, isCompleted: isCompleted);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                isCompleted ? 'Task completed' : 'Task marked as in progress')),
+      );
+
+      _loadPetsData();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error updating task: $e')),
+      );
+    }
   }
 
   @override
@@ -45,7 +99,6 @@ class _TaskPageState extends State<TaskPage> {
       ),
       body: Column(
         children: [
-          // Calendar section (fixed)
           TableCalendar(
             focusedDay: _selectedDay,
             firstDay: DateTime(2000),
@@ -66,7 +119,6 @@ class _TaskPageState extends State<TaskPage> {
                 _calendarFormat = format;
               });
             },
-            // Customizing calendar's header style
             calendarStyle: CalendarStyle(
               todayDecoration: BoxDecoration(
                 color: Colors.brown.withOpacity(0.4),
@@ -76,25 +128,12 @@ class _TaskPageState extends State<TaskPage> {
                 color: Colors.brown.withOpacity(0.7),
                 shape: BoxShape.circle,
               ),
-              defaultDecoration: BoxDecoration(
-                color: Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              weekendDecoration: BoxDecoration(
-                color: Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              outsideDecoration: BoxDecoration(
-                color: Colors.transparent,
-                shape: BoxShape.circle,
-              ),
             ),
             headerStyle: HeaderStyle(
-              formatButtonVisible: true, // Show format button
               titleTextStyle: const TextStyle(
-                fontWeight: FontWeight.bold, // Bold month and year text
+                fontWeight: FontWeight.bold,
                 fontSize: 20,
-                color: Color(0xFF333333), // Month and year color
+                color: Color(0xFF333333),
               ),
               leftChevronIcon:
                   const Icon(Icons.chevron_left, color: Color(0xFF333333)),
@@ -103,93 +142,8 @@ class _TaskPageState extends State<TaskPage> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // Filter buttons (completed and missed) (fixed)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Container(
-              height: 30,
-              child: ListView(
-                scrollDirection:
-                    Axis.horizontal, // ListView scroll horizontally
-                children: [
-                  const SizedBox(width: 20),
-                  // "All" button
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        showCompleted = null; // Show all tasks
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: showCompleted == null
-                          ? const Color(0xFF7B3A10)
-                          : Colors.white,
-                      elevation: 0, // remove shadow
-                    ),
-                    child: Text(
-                      'All',
-                      style: TextStyle(
-                        color: showCompleted == null
-                            ? Colors.white
-                            : const Color(0xFF7B3A10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  // "Completed" button
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        showCompleted = true; // Show completed tasks
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: showCompleted == true
-                          ? const Color(0xFF7B3A10)
-                          : Colors.white,
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Completed',
-                      style: TextStyle(
-                        color: showCompleted == true
-                            ? Colors.white
-                            : const Color(0xFF7B3A10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  // "Missed" button
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        showCompleted = false; // Show missed tasks
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: showCompleted == false
-                          ? const Color(0xFF7B3A10)
-                          : Colors.white,
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Missed',
-                      style: TextStyle(
-                        color: showCompleted == false
-                            ? Colors.white
-                            : const Color(0xFF7B3A10),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                ],
-              ),
-            ),
-          ),
+          _buildFilterButtons(),
           const SizedBox(height: 16),
-
-          // Task header and Add Task button (fixed)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             child: Row(
@@ -210,123 +164,36 @@ class _TaskPageState extends State<TaskPage> {
                     ),
                   ],
                 ),
-                Container(
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF7B3A10),
-                    borderRadius: BorderRadius.all(Radius.circular(45)),
+                ElevatedButton(
+                  onPressed: () {
+                    context.go('/tasks/addPetTask');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF7B3A10),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(45)),
+                    elevation: 0,
                   ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AddPetTaskScreen(),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 15),
-                      backgroundColor: Colors.transparent,
-                    ),
-                    child: const Text(
-                      'Add Task',
-                      style: TextStyle(color: Color(0xFFFFF1EC)),
-                    ),
+                  child: const Text(
+                    'Add Task',
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               ],
             ),
           ),
-
-          // Task list (scrollable)
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: _getFilteredTasks().isNotEmpty
-                  ? ListView.builder(
-                      itemCount: _getFilteredTasks().length,
-                      itemBuilder: (context, index) {
-                        DummyTask task = _getFilteredTasks()[index];
-                        String petName = pets
-                            .firstWhere((pet) => pet.tasks.contains(task))
-                            .name;
-
-                        Color backgroundColor = task.status
-                            ? const Color(0xFFB2E0B5)
-                            : const Color(0xFFFDD7A9);
-
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 4),
-                          color: const Color(0xFFFFF1EC),
-                          child: ListTile(
-                            leading: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: backgroundColor,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.calendar_month,
-                                  color: Color(0xFF333333),
-                                ),
-                              ),
-                            ),
-                            title: Text(task.title),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(petName),
-                                Text(task.time),
-                              ],
-                            ),
-                            trailing: PopupMenuButton<String>(
-                              onSelected: (value) {
-                                if (value == 'view') {
-                                  // Find the corresponding pet for the task
-                                  DummyPet pet = pets.firstWhere(
-                                      (pet) => pet.tasks.contains(task));
-
-                                  // Navigate to PetTaskDetailPage
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => PetTaskDetailPage(
-                                        task: task, // Pass the selected task
-                                        pet: pet, // Pass the found pet object
-                                      ),
-                                    ),
-                                  );
-                                } else if (value == 'complete') {
-                                  // Implement mark as completed functionality
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                          '${task.title} marked as completed'),
-                                    ),
-                                  );
-                                }
-                              },
-                              itemBuilder: (BuildContext context) =>
-                                  <PopupMenuEntry<String>>[
-                                const PopupMenuItem<String>(
-                                  value: 'view',
-                                  child: Text('View Detail'),
-                                ),
-                                const PopupMenuItem<String>(
-                                  value: 'complete',
-                                  child: Text('Mark as Completed'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    )
-                  : const Center(
+              child: FutureBuilder<Map<String, dynamic>>(
+                future: _petsWithTasksFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(
                       child: Text(
                         'No tasks for this day',
                         style: TextStyle(
@@ -334,10 +201,136 @@ class _TaskPageState extends State<TaskPage> {
                             fontWeight: FontWeight.bold,
                             color: Colors.grey),
                       ),
-                    ),
+                    );
+                  }
+
+                  final petsWithTasks = snapshot.data!['pets'] as List<dynamic>;
+                  final allTasks = petsWithTasks
+                      .expand((pet) => pet['tasks'] as List<dynamic>)
+                      .cast<Map<String, dynamic>>()
+                      .toList();
+
+                  final filteredTasks = _getFilteredTasks(allTasks);
+
+                  return filteredTasks.isNotEmpty
+                      ? ListView.builder(
+                          itemCount: filteredTasks.length,
+                          itemBuilder: (context, index) {
+                            final task = filteredTasks[index];
+                            final pet = petsWithTasks.firstWhere(
+                                (pet) => pet['tasks'].contains(task));
+
+                            Color backgroundColor = task['isCompleted']
+                                ? const Color(0xFFB2E0B5)
+                                : const Color(0xFFFDD7A9);
+
+                            return Card(
+                              margin: const EdgeInsets.symmetric(vertical: 4),
+                              color: const Color(0xFFFFF1EC),
+                              child: ListTile(
+                                leading: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: backgroundColor,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.calendar_month,
+                                      color: Color(0xFF333333),
+                                    ),
+                                  ),
+                                ),
+                                title: Text(task['title'] ?? 'No Title'),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(pet['name'] ?? 'Unknown Pet'),
+                                    Text(_formatDueDate(task['due_date'])),
+                                  ],
+                                ),
+                                trailing: PopupMenuButton<String>(
+                                  onSelected: (value) async {
+                                    if (value == 'view') {
+                                    } else if (value == 'complete') {
+                                      await _updateTaskStatus(task['id'], true);
+                                    } else if (value == 'inprogress') {
+                                      await _updateTaskStatus(
+                                          task['id'], false);
+                                    }
+                                  },
+                                  itemBuilder: (BuildContext context) =>
+                                      <PopupMenuEntry<String>>[
+                                    const PopupMenuItem<String>(
+                                      value: 'view',
+                                      child: Text('View Detail'),
+                                    ),
+                                    const PopupMenuItem<String>(
+                                      value: 'complete',
+                                      child: Text('Mark as Completed'),
+                                    ),
+                                    const PopupMenuItem<String>(
+                                      value: 'inprogress',
+                                      child: Text('Mark as In Progress'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        )
+                      : const Center(
+                          child: Text(
+                            'No tasks for this day',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey),
+                          ),
+                        );
+                },
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFilterButtons() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildFilterButton('All', null),
+          _buildFilterButton('Completed', true),
+          _buildFilterButton('In Progress', false),
+        ],
+      ),
+    );
+  }
+
+  ElevatedButton _buildFilterButton(String label, bool? filterValue) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          showCompleted = filterValue;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: showCompleted == filterValue
+            ? const Color(0xFF7B3A10)
+            : const Color(0xFFFFF1EC),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: showCompleted == filterValue
+              ? Colors.white
+              : const Color(0xFF7B3A10),
+        ),
       ),
     );
   }
