@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import '../../components/header.dart';
-import '../../../data/models/pet_model.dart';
-import '../../../data/services/pet_service.dart';
-import '../../../data/services/task_service.dart';
+import '../../data/models/pet_model.dart';
+import '../../data/services/pet_service.dart';
+import '../../data/services/task_service.dart';
 
 class AddPetTaskScreen extends StatefulWidget {
   const AddPetTaskScreen({super.key});

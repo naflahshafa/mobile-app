@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../components/header.dart';
-import '../../../data/services/pet_service.dart';
-import '../../../data/services/task_service.dart';
+import '../../data/services/pet_service.dart';
+import '../../data/services/task_service.dart';
 
 class TaskPage extends StatefulWidget {
   const TaskPage({super.key});
@@ -242,7 +242,12 @@ class _TaskPageState extends State<TaskPage> {
                                     ),
                                   ),
                                 ),
-                                title: Text(task['title'] ?? 'No Title'),
+                                title: Text(
+                                  task['title'] ?? 'No Title',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15),
+                                ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -253,6 +258,8 @@ class _TaskPageState extends State<TaskPage> {
                                 trailing: PopupMenuButton<String>(
                                   onSelected: (value) async {
                                     if (value == 'view') {
+                                      context.go(
+                                          '/tasks/taskDetail/${task['id']}/${pet['id']}');
                                     } else if (value == 'complete') {
                                       await _updateTaskStatus(task['id'], true);
                                     } else if (value == 'inprogress') {

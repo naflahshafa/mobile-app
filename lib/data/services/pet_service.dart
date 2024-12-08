@@ -27,6 +27,7 @@ class PetService {
         final tasks = await _taskService.getTasksByPetUid(pet.id);
 
         var petData = {
+          'id': pet.id,
           'name': pet.name,
           'animal_category': animalCategoryName,
           'tasks': tasks
@@ -43,7 +44,7 @@ class PetService {
       }
 
       // print('Pets List: $petsList');
-      
+
       return {
         'user_uid': userUid,
         'pets': petsList,

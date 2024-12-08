@@ -16,6 +16,8 @@ import 'screens/menu-pets/notes/pet_note_detail_screen.dart';
 import 'screens/menu-pets/notes/edit_pet_note_screen.dart';
 import 'screens/menu-tasks/task_screen.dart';
 import 'screens/menu-tasks/add_pet_task_screen.dart';
+import 'screens/menu-tasks/pet_task_detail_screen.dart';
+import 'screens/menu-tasks/edit_pet_task_screen.dart';
 import 'screens/menu-settings/settings_screen.dart';
 import 'screens/menu-settings/edit_profile_screen.dart';
 
@@ -109,6 +111,24 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/tasks/addPetTask',
       builder: (context, state) => const AddPetTaskScreen(),
+    ),
+    GoRoute(
+      path: '/tasks/taskDetail/:taskId/:petUid',
+      builder: (context, state) {
+        final taskId = state.pathParameters['taskId']!;
+        final petUid = state.pathParameters['petUid']!;
+        return PetTaskDetailPage(taskId: taskId, petUid: petUid);
+      },
+      routes: [
+        GoRoute(
+          path: 'editPetTask',
+          builder: (context, state) {
+            final taskId = state.pathParameters['taskId']!;
+            final petUid = state.pathParameters['petUid']!;
+            return EditPetTaskScreen(taskId: taskId, petUid: petUid);
+          },
+        ),
+      ],
     ),
 
     // Route navbar
