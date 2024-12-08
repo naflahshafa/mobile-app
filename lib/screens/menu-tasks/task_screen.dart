@@ -190,16 +190,45 @@ class _TaskPageState extends State<TaskPage> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                  } else if (snapshot.hasError ||
+                      (snapshot.data?.containsKey('error') ?? false)) {
+                    // return Center(
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Icon(Icons.error_outline,
+                          //     size: 50, color: Colors.red),
+                          // const SizedBox(height: 16),
+                          // Text(
+                          //   snapshot.data?['error'] ?? 'Something went wrong!',
+                          //   style: const TextStyle(
+                          //     fontSize: 18,
+                          //     fontWeight: FontWeight.bold,
+                          //     color: Colors.red,
+                          //   ),
+                          //   textAlign: TextAlign.center,
+                          // ),
+                          Text(
+                            'No tasks available',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF7B3A10),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(
                       child: Text(
-                        'No tasks for this day',
+                        'No tasks available',
                         style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF7B3A10),
+                        ),
                       ),
                     );
                   }
@@ -244,7 +273,7 @@ class _TaskPageState extends State<TaskPage> {
                                 ),
                                 title: Text(
                                   task['title'] ?? 'No Title',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15),
                                 ),
@@ -289,11 +318,12 @@ class _TaskPageState extends State<TaskPage> {
                         )
                       : const Center(
                           child: Text(
-                            'No tasks for this day',
+                            'No tasks found for the selected date',
                             style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey,
+                            ),
                           ),
                         );
                 },

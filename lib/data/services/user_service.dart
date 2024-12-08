@@ -32,4 +32,35 @@ class UserService {
       print('Error saving user data: $error');
     }
   }
+
+  Future<void> updateUserData({String? username, String? email}) async {
+    User? currentUser = _auth.currentUser;
+
+    if (currentUser == null) {
+      throw Exception('No user is currently logged in');
+    }
+
+    try {
+      final Map<String, dynamic> updates = {};
+
+      if (username != null && username.isNotEmpty) {
+        updates['username'] = username;
+      }
+
+      if (email != null && email.isNotEmpty) {
+        await currentUser.verifyBeforeUpdateEmail(email);
+        updates['email'] = email; // Reflect changes in Firestore
+      }
+
+      if (updates.isNotEmpty) {
+        await _firestore
+            .collection('users')
+            .doc(currentUser.uid)
+            .update(updates);
+      }
+    } catch (error) {
+      print('Error updating user data: $error');
+      throw Exception('Failed to update user data: $error');
+    }
+  }
 }

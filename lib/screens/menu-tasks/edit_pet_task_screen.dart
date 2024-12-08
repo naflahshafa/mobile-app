@@ -215,7 +215,7 @@ class _EditPetTaskScreenState extends State<EditPetTaskScreen> {
                                         onPressed: () {
                                           Navigator.pop(context);
                                           context.pushReplacement(
-                                            '/tasks/taskDetail/${widget.taskId}/${widget.petUid}?refresh=true',
+                                            '/tasks/taskDetail/${widget.taskId}/${widget.petUid}',
                                           );
                                         },
                                         child: const Text('OK'),

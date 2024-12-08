@@ -50,7 +50,10 @@ class PetService {
         'pets': petsList,
       };
     } catch (e) {
-      throw Exception('Error fetching pets with tasks: $e');
+      // throw Exception('Error fetching pets with tasks: $e');
+      return {
+        'error': 'Error fetching pets with tasks: $e',
+      };
     }
   }
 

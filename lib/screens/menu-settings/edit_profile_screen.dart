@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:io';
 import '../../components/header.dart';
+import '../../data/services/user_service.dart';
+import '../../data/models/user_model.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -11,13 +14,68 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  int currentIndex = 3;
   final _formKey = GlobalKey<FormState>();
-  String username = '';
-  String email = '';
+  final UserService _userService = UserService();
+  final ImagePicker _picker = ImagePicker();
+
+  late TextEditingController _usernameController;
+  late TextEditingController _emailController;
+
   String? imageUrl;
 
-  final ImagePicker _picker = ImagePicker();
+  @override
+  void initState() {
+    super.initState();
+    _usernameController = TextEditingController();
+    _emailController = TextEditingController();
+    _fetchUserData();
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      UserModel? user = await _userService.getUserData();
+      if (user != null) {
+        setState(() {
+          _usernameController.text = user.username;
+          _emailController.text = user.email;
+        });
+      }
+    } catch (error) {
+      print('Error fetching user data: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load user data.')),
+      );
+    }
+  }
+
+  Future<void> _updateUserData() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await _userService.updateUserData(
+          username: _usernameController.text,
+        );
+
+        _showDialog(
+          title: 'Success',
+          content: 'Your profile has been updated successfully.',
+          isSuccess: true,
+        );
+      } catch (error) {
+        _showDialog(
+          title: 'Failed',
+          content: 'Failed to update your profile. Please try again later.',
+          isSuccess: false,
+        );
+      }
+    }
+  }
 
   Future<void> _uploadImage() async {
     final XFile? pickedFile = await _picker.pickImage(
@@ -29,6 +87,80 @@ class _EditProfilePageState extends State<EditProfilePage> {
         imageUrl = pickedFile.path;
       });
     }
+  }
+
+  void _showDialog({
+    required String title,
+    required String content,
+    required bool isSuccess,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          title,
+          // style: TextStyle(color: isSuccess ? Colors.green : Colors.red),
+        ),
+        content: Text(content),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.pushReplacement('/settings');
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required IconData icon,
+    required TextEditingController controller,
+    bool enabled = true,
+  }) {
+    return TextFormField(
+      controller: controller,
+      enabled: enabled,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter $label';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildActionButton({
+    required String label,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          minimumSize: const Size(100, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+        ),
+        child: Text(
+          label,
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+    );
   }
 
   @override
@@ -68,7 +200,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                       ? FileImage(File(imageUrl!))
                                       : const NetworkImage(
                                           'https://ik.imagekit.io/ggslopv3t/cropped_image.png?updatedAt=1728912899260', // Default image
-                                        ),
+                                        ) as ImageProvider,
                             ),
                             Positioned(
                               bottom: -7,
@@ -91,13 +223,15 @@ class _EditProfilePageState extends State<EditProfilePage> {
                         _buildTextField(
                           label: 'Username',
                           icon: Icons.person,
-                          onChanged: (value) => username = value,
+                          controller: _usernameController,
+                          enabled: true,
                         ),
                         const SizedBox(height: 10),
                         _buildTextField(
                           label: 'Email',
                           icon: Icons.email,
-                          onChanged: (value) => email = value,
+                          controller: _emailController,
+                          enabled: false,
                         ),
                         const SizedBox(height: 20),
                         Row(
@@ -114,19 +248,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             _buildActionButton(
                               label: 'Update',
                               color: Colors.blue,
-                              onPressed: () {
-                                if (_formKey.currentState!.validate()) {
-                                  // If the form is valid, go back with updated data
-                                  Navigator.pop(
-                                    context,
-                                    {
-                                      'username': username,
-                                      'email': email,
-                                      'imageUrl': imageUrl
-                                    },
-                                  );
-                                }
-                              },
+                              onPressed: _updateUserData,
                             ),
                           ],
                         ),
@@ -137,52 +259,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required IconData icon,
-    required Function(String) onChanged,
-  }) {
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
-      onChanged: onChanged,
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter $label';
-        }
-        return null; // Return null if input is valid
-      },
-    );
-  }
-
-  Widget _buildActionButton({
-    required String label,
-    required Color color,
-    required VoidCallback onPressed,
-  }) {
-    return Expanded(
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          minimumSize: const Size(100, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-        ),
-        child: Text(
-          label,
-          style: const TextStyle(color: Colors.white),
         ),
       ),
     );
